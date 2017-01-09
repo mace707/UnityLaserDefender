@@ -10,6 +10,11 @@ public class PlayerScript : MonoBehaviour
 	float XMax = 5;
 	float Padding = 0.5f;
 
+	public GameObject Projectile;
+
+	public float ProjectileSpeed = 0.0f;
+	public float FiringRate = 0.2f;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -21,7 +26,14 @@ public class PlayerScript : MonoBehaviour
 		XMin = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distance)).x + Padding;
 		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distance)).x - Padding;
 	}
-	
+
+	void FireProjectile()
+	{
+		// Quaternion.identity -> means no rotations
+		GameObject beam = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
+		beam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
+	}
+
 	// Update is called once per frame
 	void Update () 
 	{
@@ -31,6 +43,13 @@ public class PlayerScript : MonoBehaviour
 			transform.position += Vector3.left * Speed * Time.deltaTime;
 		else if (Input.GetKey (KeyCode.RightArrow)) 
 			transform.position += Vector3.right * Speed * Time.deltaTime;
+
+		if (Input.GetKeyDown(KeyCode.Space)) 
+			InvokeRepeating ("FireProjectile", 0.00001f, FiringRate);
+		if (Input.GetKeyUp (KeyCode.Space))
+			CancelInvoke ("FireProjectile");
+
+
 
 		// Restrict the player to the game space.
 		float newX = Mathf.Clamp(transform.position.x, XMin, XMax);
