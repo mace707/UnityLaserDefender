@@ -21,17 +21,21 @@ public class EnemySpawner : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		foreach (Transform child in transform) 
-		{
-			GameObject enemy = (GameObject)Instantiate(EnemyPrefab, child.transform.position, Quaternion.identity);
-			enemy.transform.SetParent(child);
-		}
-
+		SpawnEnemies();
 		//Distance between the camera and the object.
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
 		XMin = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x ;
 		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distanceToCamera)).x;
 
+	}
+
+	void SpawnEnemies()
+	{
+		foreach (Transform child in transform) 
+		{
+			GameObject enemy = (GameObject)Instantiate(EnemyPrefab, child.transform.position, Quaternion.identity);
+			enemy.transform.SetParent(child);
+		}
 	}
 
 	public void OnDrawGizmos()
@@ -50,5 +54,20 @@ public class EnemySpawner : MonoBehaviour
 			MovingRight = true;
 		else if (transform.position.x > XMax - Width / 2)
 			MovingRight = false;
+
+		if(AllMemeberDead())
+		{
+			SpawnEnemies();
+		}
+	}
+
+	bool AllMemeberDead()
+	{
+		foreach(Transform childPositionGameObj in transform)
+		{
+			if(childPositionGameObj.childCount != 0)
+				return false;
+		}
+		return true;
 	}
 }

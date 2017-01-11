@@ -15,6 +15,8 @@ public class PlayerScript : MonoBehaviour
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
 
+	public float Health = 1500;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -49,11 +51,21 @@ public class PlayerScript : MonoBehaviour
 		if (Input.GetKeyUp (KeyCode.Space))
 			CancelInvoke ("FireProjectile");
 
-
-
 		// Restrict the player to the game space.
 		float newX = Mathf.Clamp(transform.position.x, XMin, XMax);
 		transform.position = new Vector3 (newX, transform.position.y, transform.position.z);
+	}
 
+	void OnTriggerEnter2D(Collider2D col)
+	{
+		Projectile laser = col.gameObject.GetComponent<Projectile>();
+
+		if(laser)
+		{
+			laser.Hit();
+			Health -= laser.GetDamage();
+			if(Health <= 0)
+				Destroy(gameObject);
+		}
 	}
 }
