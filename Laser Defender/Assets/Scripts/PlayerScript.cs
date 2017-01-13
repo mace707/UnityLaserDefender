@@ -17,9 +17,15 @@ public class PlayerScript : MonoBehaviour
 
 	public float Health = 1500;
 
+	private ScoreKeeper mScoreKeeper;
+
+	public AudioClip FireSound;
+
 	// Use this for initialization
 	void Start () 
 	{
+		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
+
 		//Distance between the camera and the object.
 		float distance = transform.position.z - Camera.main.transform.position.z;
 
@@ -31,6 +37,7 @@ public class PlayerScript : MonoBehaviour
 
 	void FireProjectile()
 	{
+		AudioSource.PlayClipAtPoint(FireSound, transform.position);
 		// Quaternion.identity -> means no rotations
 		GameObject beam = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
 		beam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
@@ -65,7 +72,14 @@ public class PlayerScript : MonoBehaviour
 			laser.Hit();
 			Health -= laser.GetDamage();
 			if(Health <= 0)
-				Destroy(gameObject);
+				Die();
 		}
+	}
+
+	void Die()
+	{
+		LevelManager mgr = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+		mgr.LoadLevel("Win Screen");
+		Destroy(gameObject);
 	}
 }

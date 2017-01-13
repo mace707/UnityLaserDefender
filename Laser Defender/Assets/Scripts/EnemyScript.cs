@@ -11,6 +11,17 @@ public class EnemyScript : MonoBehaviour
 
 	public GameObject Projectile;
 
+	private ScoreKeeper mScoreKeeper;
+
+	public AudioClip FireSound;
+	public AudioClip DeathSound;
+
+
+	void Start()
+	{
+		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
+	}
+
 	void OnTriggerEnter2D(Collider2D col)
 	{
 		Projectile laser = col.gameObject.GetComponent<Projectile> ();
@@ -20,12 +31,13 @@ public class EnemyScript : MonoBehaviour
 			laser.Hit();
 			Health -= laser.GetDamage();
 			if(Health <= 0)
-				Destroy(gameObject);
+				Die();
 		}
 	}
 
 	void FireProjectile()
 	{
+		AudioSource.PlayClipAtPoint(FireSound, transform.position);
 		GameObject beam = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
 		beam.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -ProjectileSpeed);
 	}
@@ -38,6 +50,13 @@ public class EnemyScript : MonoBehaviour
 		{
 			FireProjectile();
 		}
+	}
+
+	void Die()
+	{
+		AudioSource.PlayClipAtPoint(DeathSound, transform.position);
+		mScoreKeeper.SetScore(175);
+		Destroy(gameObject);
 	}
 
 }
