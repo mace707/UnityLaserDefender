@@ -21,6 +21,8 @@ public class PlayerScript : MonoBehaviour
 
 	public AudioClip FireSound;
 
+	Animator mAnimator;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -33,6 +35,8 @@ public class PlayerScript : MonoBehaviour
 		// 1 is right most with 0.5 being center.
 		XMin = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distance)).x + Padding;
 		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distance)).x - Padding;
+
+		mAnimator = GetComponent<Animator>();
 	}
 
 	void FireProjectile()
@@ -48,10 +52,20 @@ public class PlayerScript : MonoBehaviour
 	{
 		// Time.Deltatime (Time between frames) makes it frame rate independant. 
 		// If a frame takes longer to render, it will move at a higher speed.
-		if (Input.GetKey (KeyCode.LeftArrow)) 
+		if (Input.GetKey (KeyCode.LeftArrow))
+		{
 			transform.position += Vector3.left * Speed * Time.deltaTime;
-		else if (Input.GetKey (KeyCode.RightArrow)) 
+			mAnimator.SetInteger ("PlayerDirrection", -1);
+		}
+		else if (Input.GetKey (KeyCode.RightArrow))
+		{
 			transform.position += Vector3.right * Speed * Time.deltaTime;
+			mAnimator.SetInteger ("PlayerDirrection", 1);
+		}
+		else
+		{
+			mAnimator.SetInteger ("PlayerDirrection", 0);
+		}
 
 		if (Input.GetKeyDown(KeyCode.Space)) 
 			InvokeRepeating ("FireProjectile", 0.00001f, FiringRate);
