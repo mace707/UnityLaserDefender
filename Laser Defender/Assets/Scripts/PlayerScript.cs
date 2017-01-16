@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour 
 {
@@ -11,23 +12,20 @@ public class PlayerScript : MonoBehaviour
 	float Padding = 0.5f;
 
 	public GameObject Projectile;
-
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
-
-	public float Health = 1500;
-
-	private ScoreKeeper mScoreKeeper;
+	public float Health = 100;
+	private float MaxHitPoint = 100;
 
 	public AudioClip FireSound;
-
 	Animator mAnimator;
+	public Image HealthBarForeGround;
+	public Text RatioText;
 
 	// Use this for initialization
 	void Start () 
 	{
-		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
-
+		MaxHitPoint = Health;
 		//Distance between the camera and the object.
 		float distance = transform.position.z - Camera.main.transform.position.z;
 
@@ -37,6 +35,8 @@ public class PlayerScript : MonoBehaviour
 		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distance)).x - Padding;
 
 		mAnimator = GetComponent<Animator>();
+
+		UpdateHealthBar();
 	}
 
 	void FireProjectile()
@@ -85,6 +85,7 @@ public class PlayerScript : MonoBehaviour
 		{
 			laser.Hit();
 			Health -= laser.GetDamage();
+			UpdateHealthBar();
 			if(Health <= 0)
 				Die();
 		}
@@ -95,5 +96,13 @@ public class PlayerScript : MonoBehaviour
 		LevelManager mgr = GameObject.Find("LevelManager").GetComponent<LevelManager>();
 		mgr.LoadLevel("Win Screen");
 		Destroy(gameObject);
+	}
+
+
+	private void UpdateHealthBar()
+	{
+		float ratio = Health / MaxHitPoint;
+		HealthBarForeGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
+		RatioText.text = ( Mathf.Floor(ratio * 100)).ToString() + '%';
 	}
 }
