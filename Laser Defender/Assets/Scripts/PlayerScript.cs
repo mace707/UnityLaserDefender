@@ -103,6 +103,16 @@ public class PlayerScript : MonoBehaviour
 	{
 		float ratio = Health / MaxHitPoint;
 		HealthBarForeGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
-		RatioText.text = ( Mathf.Floor(ratio * 100)).ToString() + '%';
+
+		if(ratio > 0.75)
+			HealthBarForeGround.color = new Color32(0, 255, 0, 200);
+		else if(ratio > 0.50)
+			HealthBarForeGround.color = new Color32(255, 255, 0, 200);
+		else if(ratio > 0.25)
+			HealthBarForeGround.color = new Color32(255, 165, 0, 200);
+		else if(ratio >= 0)
+			HealthBarForeGround.color = new Color32(255, 0, 0, 200);
+
+		RatioText.text = "HP " + (Mathf.Floor(ratio * 100)).ToString() + '%';
 	}
 }
