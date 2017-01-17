@@ -6,7 +6,6 @@ public class EnemyScript : MonoBehaviour
 	[SerializeField]
 	public float Health 			= 150;
 	public float ProjectileSpeed 	= 50.0f;
-	public float FiringRate 		= 1.2f;
 	public float ShotsPerSecond 	= 0.5f;
 
 	public GameObject Projectile;
@@ -15,7 +14,6 @@ public class EnemyScript : MonoBehaviour
 
 	public AudioClip FireSound;
 	public AudioClip DeathSound;
-
 
 	void Start()
 	{
@@ -38,8 +36,16 @@ public class EnemyScript : MonoBehaviour
 	void FireProjectile()
 	{
 		AudioSource.PlayClipAtPoint(FireSound, transform.position);
+
+		float playerXPos = GameObject.Find("Player").transform.position.x;
+
+		float xShootDirrection = playerXPos - transform.position.x;
+
+		if(xShootDirrection < 0) xShootDirrection -= 2;
+		else xShootDirrection += 2;
+
 		GameObject beam = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
-		beam.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -ProjectileSpeed);
+		beam.GetComponent<Rigidbody2D>().velocity = new Vector2(xShootDirrection, -ProjectileSpeed);
 	}
 
 	// Update is called once per frame
