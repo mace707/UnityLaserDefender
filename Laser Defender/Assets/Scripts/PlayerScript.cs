@@ -50,6 +50,15 @@ public class PlayerScript : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
+
+		HandleKeyPress();
+		// Restrict the player to the game space.
+		float newX = Mathf.Clamp(transform.position.x, XMin, XMax);
+		transform.position = new Vector3 (newX, transform.position.y, transform.position.z);
+	}
+
+	void HandleKeyPress()
+	{
 		// Time.Deltatime (Time between frames) makes it frame rate independant. 
 		// If a frame takes longer to render, it will move at a higher speed.
 		if (Input.GetKey (KeyCode.LeftArrow))
@@ -72,9 +81,8 @@ public class PlayerScript : MonoBehaviour
 		if (Input.GetKeyUp (KeyCode.Space))
 			CancelInvoke ("FireProjectile");
 
-		// Restrict the player to the game space.
-		float newX = Mathf.Clamp(transform.position.x, XMin, XMax);
-		transform.position = new Vector3 (newX, transform.position.y, transform.position.z);
+		if(Input.GetKeyDown(KeyCode.LeftShift))
+			Debug.Log("Shield Active");
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
