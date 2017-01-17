@@ -30,25 +30,27 @@ public class MusicPlayer : MonoBehaviour {
 
 	void OnLevelWasLoaded(int level)
 	{
-		Debug.Log("Music Player Loaded Level " + level);
-		Music.Stop();
-
-		switch (level) 
+		if(Music)
 		{
-		case 0:
-			Music.clip = StartClip;
-			break;
-		case 1:
-			Music.clip = GameClip;
-			break;
-		case 2:
-			Music.clip = EndClip;
-			break;
+			Music.Stop();
+
+			switch(level)
+			{
+			case 0:
+				Music.clip = StartClip;
+				break;
+			case 1:
+				Music.clip = GameClip;
+				break;
+			case 2:
+				Music.clip = EndClip;
+				break;
+			}
+
+			Music.loop = true;
+
+			Music.Play();
 		}
-
-		Music.loop = true;
-
-		Music.Play();
 	}
 
 }

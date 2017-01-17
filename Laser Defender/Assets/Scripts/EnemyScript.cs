@@ -15,6 +15,8 @@ public class EnemyScript : MonoBehaviour
 	public AudioClip FireSound;
 	public AudioClip DeathSound;
 
+	public GameObject Explosion;
+
 	void Start()
 	{
 		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
@@ -60,7 +62,8 @@ public class EnemyScript : MonoBehaviour
 
 	void Die()
 	{
-		AudioSource.PlayClipAtPoint(DeathSound, transform.position);
+		Instantiate(Explosion, transform.position, Quaternion.identity);
+		AudioSource.PlayClipAtPoint(DeathSound, transform.position, 50f);
 		mScoreKeeper.SetScore(175);
 		Destroy(gameObject);
 	}
