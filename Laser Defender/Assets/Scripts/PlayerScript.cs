@@ -143,6 +143,27 @@ public class PlayerScript : MonoBehaviour
 			UpdateHealthBar();
 			if(HitPoints <= 0)
 				Die();
+			return;
+		}
+
+		ItemDropShield shield = col.gameObject.GetComponent<ItemDropShield>();
+		if(shield && ShieldPoints < MaxShieldPoints)
+		{
+			shield.Hit();
+			ShieldPoints += MaxShieldPoints/10;
+			Mathf.Clamp(ShieldPoints, 0, MaxShieldPoints);
+			UpdateShieldPointBar();
+			return;
+		}
+
+		ItemDropHealth health = col.gameObject.GetComponent<ItemDropHealth>();
+		if(health && HitPoints < MaxHitPoints)
+		{
+			health.Hit();
+			HitPoints += MaxHitPoints/10;
+			Mathf.Clamp(HitPoints, 0, MaxHitPoints);
+			UpdateHealthBar();
+			return;
 		}
 	}
 

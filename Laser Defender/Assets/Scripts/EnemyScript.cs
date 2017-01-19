@@ -17,6 +17,8 @@ public class EnemyScript : MonoBehaviour
 
 	public GameObject Explosion;
 
+	public GameObject[] ItemDrops; 
+
 	void Start()
 	{
 		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
@@ -63,6 +65,13 @@ public class EnemyScript : MonoBehaviour
 	void Die()
 	{
 		Instantiate(Explosion, transform.position, Quaternion.identity);
+		int itemDropIndex = Random.Range(0, 10);
+		if(itemDropIndex < ItemDrops.Length)
+		{
+			GameObject itemDrop = Instantiate(ItemDrops[itemDropIndex], transform.position, Quaternion.identity);
+			itemDrop.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.position.x, -5);
+		}
+
 		AudioSource.PlayClipAtPoint(DeathSound, transform.position, 50f);
 		mScoreKeeper.SetScore(175);
 		Destroy(gameObject);
