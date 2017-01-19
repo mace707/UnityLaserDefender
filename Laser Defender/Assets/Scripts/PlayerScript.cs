@@ -151,7 +151,6 @@ public class PlayerScript : MonoBehaviour
 		{
 			shield.Hit();
 			ShieldPoints += MaxShieldPoints/10;
-			Mathf.Clamp(ShieldPoints, 0, MaxShieldPoints);
 			UpdateShieldPointBar();
 			return;
 		}
@@ -161,7 +160,6 @@ public class PlayerScript : MonoBehaviour
 		{
 			health.Hit();
 			HitPoints += MaxHitPoints/10;
-			Mathf.Clamp(HitPoints, 0, MaxHitPoints);
 			UpdateHealthBar();
 			return;
 		}
@@ -200,6 +198,7 @@ public class PlayerScript : MonoBehaviour
 
 	private void UpdateShieldPointBar()
 	{
+		Mathf.Clamp(ShieldPoints, 0, MaxShieldPoints);
 		float ratio = ShieldPoints / MaxShieldPoints;
 		ShieldBarForGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
 		ShieldBarRatioText.text = "SP " + (Mathf.Floor(ratio * 100)).ToString() + '%';
@@ -207,6 +206,7 @@ public class PlayerScript : MonoBehaviour
 
 	private void UpdateHealthBar()
 	{
+		Mathf.Clamp(HitPoints, 0, MaxHitPoints);
 		float ratio = HitPoints / MaxHitPoints;
 		HealthBarForeGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
 
