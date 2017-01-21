@@ -4,25 +4,40 @@ using UnityEngine;
 
 public class PlanetSpawner : MonoBehaviour 
 {
-	[SerializeField]
-	public GameObject MeteorPrefab;
 
-	public GameObject Planet;
+	public GameObject[] Planets;
 
-	public void OnDrawGizmos()
+	private GameObject SpawnedPlanet;
+
+
+	// Use this for initialization
+	void Start () 
 	{
-		Gizmos.DrawWireSphere (transform.position, 1);
+		SpawnPlanet();
+	}
+	
+	// Update is called once per frame
+	void Update () 
+	{
+		if(!SpawnedPlanet)
+		{
+			SpawnPlanet();
+		}
 	}
 
 	void SpawnPlanet()
 	{
-		Planet = (GameObject)Instantiate(MeteorPrefab, transform.position, Quaternion.identity);
-	}
-	// Update is called once per frame
-	void Update ()
-	{
-		if (!Planet)
-			SpawnPlanet();
-	}
-}
+		int randChildIndex = Random.Range(0, this.transform.childCount-1);
+		int randPlanetIndex = Random.Range(0, Planets.Length-1);
 
+
+
+		Animator mAnimator = transform.GetChild(randChildIndex).GetComponent<Animator>();
+		mAnimator.SetBool("IsTravelling", true);
+
+		Transform childPosition = transform.GetChild(randChildIndex).transform;
+		SpawnedPlanet = (GameObject)Instantiate(Planets[randPlanetIndex], childPosition.position, Quaternion.identity);
+		SpawnedPlanet.transform.SetParent(childPosition);
+	}
+
+}

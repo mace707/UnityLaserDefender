@@ -5,6 +5,9 @@ public class Shredder : MonoBehaviour
 {
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		Destroy(col.gameObject);
+		if (col.gameObject.tag == "PSP")
+			col.gameObject.GetComponent<Animator>().SetBool ("IsTravelling", false);
+		else
+			Destroy (col.gameObject);
 	}
 }
