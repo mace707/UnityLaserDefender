@@ -7,37 +7,48 @@ public class PlanetSpawner : MonoBehaviour
 
 	public GameObject[] Planets;
 
-	private GameObject SpawnedPlanet;
-
-
 	// Use this for initialization
 	void Start () 
 	{
 		SpawnPlanet();
 	}
-	
-	// Update is called once per frame
-	void Update () 
+
+	void Update()
 	{
-		if(!SpawnedPlanet)
+		foreach(Transform child in transform)
 		{
-			SpawnPlanet();
+			if(child.childCount != 0)
+				return;
 		}
+		SpawnPlanet();
 	}
 
-	void SpawnPlanet()
+	public void SpawnPlanet()
 	{
-		int randChildIndex = Random.Range(0, this.transform.childCount-1);
-		int randPlanetIndex = Random.Range(0, Planets.Length-1);
+		int livePlanets = 0;
 
+		foreach(Transform child in transform)
+			livePlanets += child.childCount;
 
+		Debug.Log("Live Planets: " + livePlanets);
 
-		Animator mAnimator = transform.GetChild(randChildIndex).GetComponent<Animator>();
-		mAnimator.SetBool("IsTravelling", true);
+		if(livePlanets == transform.childCount)
+			return;
 
-		Transform childPosition = transform.GetChild(randChildIndex).transform;
-		SpawnedPlanet = (GameObject)Instantiate(Planets[randPlanetIndex], childPosition.position, Quaternion.identity);
-		SpawnedPlanet.transform.SetParent(childPosition);
+		int randChildIndex = Random.Range(0, transform.childCount);
+		int randPlanetIndex = Random.Range(0, Planets.Length);
+
+		if(transform.GetChild(randChildIndex).childCount == 0)
+		{
+			Animator mAnimator = transform.GetChild(randChildIndex).GetComponent<Animator>();
+
+			mAnimator.SetBool("IsTravelling", true);
+
+			Transform childPosition = transform.GetChild(randChildIndex).transform;
+			GameObject spawnedPlanet = (GameObject)Instantiate(Planets[randPlanetIndex], childPosition.position, Quaternion.identity);
+			spawnedPlanet.transform.SetParent(childPosition);
+		}
+		else
+			SpawnPlanet();
 	}
-
 }

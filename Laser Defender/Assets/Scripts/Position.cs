@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Position : MonoBehaviour 
 {
-	void OnDrawGizmos()
+	void OnDrawGizmosSelected()
 	{
 		Gizmos.DrawWireSphere (transform.position, 1);
 	}

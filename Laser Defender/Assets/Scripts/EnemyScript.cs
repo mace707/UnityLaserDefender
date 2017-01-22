@@ -45,9 +45,6 @@ public class EnemyScript : MonoBehaviour
 
 		float xShootDirrection = playerXPos - transform.position.x;
 
-		if(xShootDirrection < 0) xShootDirrection -= 2;
-		else xShootDirrection += 2;
-
 		GameObject beam = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
 		beam.GetComponent<Rigidbody2D>().velocity = new Vector2(xShootDirrection, -ProjectileSpeed);
 	}
@@ -65,7 +62,7 @@ public class EnemyScript : MonoBehaviour
 	void Die()
 	{
 		Instantiate(Explosion, transform.position, Quaternion.identity);
-		int itemDropIndex = Random.Range(0, 10);
+		int itemDropIndex = Random.Range(0, 11);
 		if(itemDropIndex < ItemDrops.Length)
 		{
 			GameObject itemDrop = Instantiate(ItemDrops[itemDropIndex], transform.position, Quaternion.identity);

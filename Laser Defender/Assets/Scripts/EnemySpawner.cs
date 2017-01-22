@@ -20,6 +20,8 @@ public class EnemySpawner : MonoBehaviour
 	[SerializeField]
 	float Speed = 5.0f;
 
+	int EnemyFormationIndex = 0;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -33,7 +35,7 @@ public class EnemySpawner : MonoBehaviour
 
 	void SpawnEnemies()
 	{
-		foreach (Transform child in transform) 
+		foreach (Transform child in transform.GetChild(EnemyFormationIndex).transform) 
 		{
 			GameObject enemy = (GameObject)Instantiate(EnemyPrefab, child.transform.position, Quaternion.identity);
 			enemy.transform.SetParent(child);
@@ -67,13 +69,17 @@ public class EnemySpawner : MonoBehaviour
 		if (transform.position.x < XMin + Width / 2) MovingRight = true;
 		else if (transform.position.x > XMax - Width / 2) MovingRight = false;
 
-		if(AllMemeberDead())
+		if (AllMemeberDead())
+		{
+			
+			EnemyFormationIndex = Random.Range(0, transform.childCount);
 			SpawnUntilFull();
+		}
 	}
 
 	Transform NextFreePosition()
 	{
-		foreach(Transform childPositionGameObj in transform)
+		foreach(Transform childPositionGameObj in transform.GetChild(EnemyFormationIndex).transform)
 		{
 			if(childPositionGameObj.childCount == 0)
 				return childPositionGameObj;
@@ -83,7 +89,7 @@ public class EnemySpawner : MonoBehaviour
 
 	bool AllMemeberDead()
 	{
-		foreach(Transform childPositionGameObj in transform)
+		foreach(Transform childPositionGameObj in transform.GetChild(EnemyFormationIndex).transform)
 		{
 			if(childPositionGameObj.childCount > 0)
 				return false;

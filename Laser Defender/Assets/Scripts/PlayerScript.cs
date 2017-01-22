@@ -15,10 +15,10 @@ public class PlayerScript : MonoBehaviour
 	public GameObject Shield;
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
-	public float HitPoints = 100;
-	private float MaxHitPoints = 100;
-	public float ShieldPoints = 100;
-	private float MaxShieldPoints = 100;
+	private float HitPoints = 100;
+	public float MaxHitPoints = 100;
+	private float ShieldPoints = 100;
+	public float MaxShieldPoints = 100;
 
 
 	private GameObject ActiveShield;
@@ -37,7 +37,9 @@ public class PlayerScript : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		MaxHitPoints = HitPoints;
+		HitPoints = MaxHitPoints;
+		ShieldPoints = MaxShieldPoints;
+
 		//Distance between the camera and the object.
 		float distance = transform.position.z - Camera.main.transform.position.z;
 
@@ -151,6 +153,10 @@ public class PlayerScript : MonoBehaviour
 		{
 			shield.Hit();
 			ShieldPoints += MaxShieldPoints/10;
+
+			if(ShieldPoints > MaxShieldPoints)
+				ShieldPoints = MaxShieldPoints;
+
 			UpdateShieldPointBar();
 			return;
 		}
@@ -160,6 +166,10 @@ public class PlayerScript : MonoBehaviour
 		{
 			health.Hit();
 			HitPoints += MaxHitPoints/10;
+
+			if(HitPoints > MaxHitPoints)
+				HitPoints = MaxHitPoints;
+
 			UpdateHealthBar();
 			return;
 		}
@@ -198,7 +208,6 @@ public class PlayerScript : MonoBehaviour
 
 	private void UpdateShieldPointBar()
 	{
-		Mathf.Clamp(ShieldPoints, 0, MaxShieldPoints);
 		float ratio = ShieldPoints / MaxShieldPoints;
 		ShieldBarForGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
 		ShieldBarRatioText.text = "SP " + (Mathf.Floor(ratio * 100)).ToString() + '%';
@@ -206,7 +215,6 @@ public class PlayerScript : MonoBehaviour
 
 	private void UpdateHealthBar()
 	{
-		Mathf.Clamp(HitPoints, 0, MaxHitPoints);
 		float ratio = HitPoints / MaxHitPoints;
 		HealthBarForeGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
 
