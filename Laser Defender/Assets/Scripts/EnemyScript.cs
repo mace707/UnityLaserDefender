@@ -19,6 +19,8 @@ public class EnemyScript : MonoBehaviour
 
 	public GameObject[] ItemDrops; 
 
+	public bool AimedShot = true;
+
 	void Start()
 	{
 		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
@@ -43,7 +45,7 @@ public class EnemyScript : MonoBehaviour
 
 		float playerXPos = GameObject.Find("Player").transform.position.x;
 
-		float xShootDirrection = playerXPos - transform.position.x;
+		float xShootDirrection = AimedShot ? playerXPos - transform.position.x : 0;
 
 		GameObject beam = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
 		beam.GetComponent<Rigidbody2D>().velocity = new Vector2(xShootDirrection, -ProjectileSpeed);

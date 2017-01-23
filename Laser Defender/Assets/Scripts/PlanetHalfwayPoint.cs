@@ -13,7 +13,6 @@ public class PlanetHalfwayPoint : MonoBehaviour
 			PlanetSpawner ps = col.gameObject.transform.parent.GetComponent<PlanetSpawner>();
 
 			float val = Random.value;
-			Debug.Log(val);
 			if(ps && val <= SpawnProbability)
 				ps.SpawnPlanet();
 		}

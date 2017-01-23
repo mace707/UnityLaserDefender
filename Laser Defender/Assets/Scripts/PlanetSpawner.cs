@@ -15,6 +15,11 @@ public class PlanetSpawner : MonoBehaviour
 
 	void Update()
 	{
+		CheckForPlanets();
+	}
+
+	void CheckForPlanets()
+	{
 		foreach(Transform child in transform)
 		{
 			if(child.childCount != 0)
@@ -29,8 +34,6 @@ public class PlanetSpawner : MonoBehaviour
 
 		foreach(Transform child in transform)
 			livePlanets += child.childCount;
-
-		Debug.Log("Live Planets: " + livePlanets);
 
 		if(livePlanets == transform.childCount)
 			return;
