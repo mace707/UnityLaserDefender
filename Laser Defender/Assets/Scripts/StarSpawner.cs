@@ -30,7 +30,7 @@ public class StarSpawner : MonoBehaviour
 
 		if(InvokeStar)
 		{
-			InvokeRepeating("SpawnStar", 2f, 2f);
+			InvokeRepeating("SpawnStar", 3f, 3f);
 			InvokeStar = false;
 		}
 	}
@@ -42,8 +42,12 @@ public class StarSpawner : MonoBehaviour
 
 	void SpawnStar()
 	{
-		GameObject beam = (GameObject)Instantiate (ShootingStar, transform.position, Quaternion.identity);
-		beam.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -20);
+		float probability = 0.3f;
+		if(Random.value < probability)
+		{
+			GameObject star = (GameObject)Instantiate(ShootingStar, transform.position, Quaternion.identity);
+			star.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -30);
+		}
 	}
 
 }
