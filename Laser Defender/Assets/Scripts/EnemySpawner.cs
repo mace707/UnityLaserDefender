@@ -4,7 +4,11 @@ using System.Collections;
 public class EnemySpawner : MonoBehaviour 
 {
 	[SerializeField]
-	public GameObject EnemyPrefab;
+	public GameObject[] EnemyPrefabs;
+
+	[SerializeField]
+	public GameObject[] BossPrefabs;
+
 	[SerializeField]
 	public float Width = 10f;
 	[SerializeField]
@@ -13,6 +17,8 @@ public class EnemySpawner : MonoBehaviour
 	public float SpawnDelay = 0.5f;
 
 	private bool MovingRight = true;
+
+	int EnemyPrefabIndex = 0;
 
 	float XMin = -5;
 	float XMax = 5;
@@ -33,13 +39,11 @@ public class EnemySpawner : MonoBehaviour
 
 	}
 
-	void SpawnEnemies()
+	void SpawnBoss()
 	{
-		foreach (Transform child in transform.GetChild(EnemyFormationIndex).transform) 
-		{
-			GameObject enemy = (GameObject)Instantiate(EnemyPrefab, child.transform.position, Quaternion.identity);
-			enemy.transform.SetParent(child);
-		}
+		Transform freePosition = NextFreePosition();
+		GameObject enemy = (GameObject)Instantiate(BossPrefabs[0], freePosition.position, Quaternion.identity);
+		enemy.transform.SetParent(freePosition);
 	}
 
 	void SpawnUntilFull()
@@ -47,7 +51,7 @@ public class EnemySpawner : MonoBehaviour
 		Transform freePosition = NextFreePosition();
 		if(freePosition)
 		{
-			GameObject enemy = (GameObject)Instantiate(EnemyPrefab, freePosition.position, Quaternion.identity);
+			GameObject enemy = (GameObject)Instantiate(EnemyPrefabs[EnemyPrefabIndex], freePosition.position, Quaternion.identity);
 			enemy.transform.SetParent(freePosition);
 		}
 		if (NextFreePosition())
@@ -71,9 +75,17 @@ public class EnemySpawner : MonoBehaviour
 
 		if (AllMemeberDead())
 		{
-			
-			EnemyFormationIndex = Random.Range(0, transform.childCount);
-			SpawnUntilFull();
+			EnemyPrefabIndex += 1;
+			if(EnemyPrefabIndex < EnemyPrefabs.Length)
+			{
+				EnemyFormationIndex = Random.Range(0, transform.childCount - 1);
+				SpawnUntilFull();
+			}
+			else
+			{
+				EnemyFormationIndex = transform.childCount - 1;
+				SpawnBoss();
+			}
 		}
 	}
 
