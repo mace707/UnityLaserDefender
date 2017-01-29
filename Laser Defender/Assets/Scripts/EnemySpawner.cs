@@ -9,6 +9,8 @@ public class EnemySpawner : MonoBehaviour
 	[SerializeField]
 	public GameObject[] BossPrefabs;
 
+	public FactionManager Factions;
+
 	[SerializeField]
 	public float Width = 10f;
 	[SerializeField]
@@ -18,7 +20,8 @@ public class EnemySpawner : MonoBehaviour
 
 	private bool MovingRight = true;
 
-	int EnemyPrefabIndex = 0;
+	public int TempFactionEnemyIndex = 0;
+	public int TempFactionIndex = 0;
 
 	float XMin = -5;
 	float XMax = 5;
@@ -51,8 +54,17 @@ public class EnemySpawner : MonoBehaviour
 		Transform freePosition = NextFreePosition();
 		if(freePosition)
 		{
-			GameObject enemy = (GameObject)Instantiate(EnemyPrefabs[EnemyPrefabIndex], freePosition.position, Quaternion.identity);
-			enemy.transform.SetParent(freePosition);
+			if(TempFactionIndex < Factions.Factions.Length)
+			{
+				Transform factionTransform = Factions.Factions[TempFactionIndex].transform;
+
+				if(TempFactionEnemyIndex < factionTransform.GetChild(0).childCount)
+				{
+					GameObject enemy =	factionTransform.GetChild(0).GetChild(TempFactionEnemyIndex).gameObject;
+					GameObject spawnedEnemy = (GameObject)Instantiate(enemy, freePosition.position, Quaternion.identity);
+					spawnedEnemy.transform.SetParent(freePosition);
+				}
+			}
 		}
 		if (NextFreePosition())
 			Invoke("SpawnUntilFull", SpawnDelay);
@@ -66,27 +78,17 @@ public class EnemySpawner : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		
+		HandleMovement();
+		SpawnNextEnemies();
+	}
+
+	void HandleMovement()
+	{
 		if (MovingRight) transform.position += Vector3.right * Speed * Time.deltaTime;
 		else transform.position += Vector3.left * Speed * Time.deltaTime;
 
 		if (transform.position.x < XMin + Width / 2) MovingRight = true;
 		else if (transform.position.x > XMax - Width / 2) MovingRight = false;
-
-		if (AllMemeberDead())
-		{
-			EnemyPrefabIndex += 1;
-			if(EnemyPrefabIndex < EnemyPrefabs.Length)
-			{
-				EnemyFormationIndex = Random.Range(0, transform.childCount - 1);
-				SpawnUntilFull();
-			}
-			else
-			{
-				EnemyFormationIndex = transform.childCount - 1;
-				SpawnBoss();
-			}
-		}
 	}
 
 	Transform NextFreePosition()
@@ -107,5 +109,28 @@ public class EnemySpawner : MonoBehaviour
 				return false;
 		}
 		return true;
+	}
+
+	void SpawnNextEnemies()
+	{
+		if(AllMemeberDead())
+		{
+			TempFactionEnemyIndex += 1;
+
+			EnemyFormationIndex = Random.Range(0, transform.childCount - 1);
+
+			if(TempFactionEnemyIndex == 4)
+			{
+				TempFactionEnemyIndex = 0;
+				TempFactionIndex += 1;
+				SpawnUntilFull();
+			}
+			else
+			{
+				SpawnUntilFull();
+			}
+
+
+		}
 	}
 }

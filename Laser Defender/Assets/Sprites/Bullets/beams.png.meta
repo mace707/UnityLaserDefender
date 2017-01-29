@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 4ade211551484174294916d9b61aa6fb
-timeCreated: 1485189433
+timeCreated: 1485691121
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -57,6 +57,9 @@ TextureImporter:
     21300100: beams_50
     21300102: beams_51
     21300104: beams_52
+    21300106: beams_53
+    21300108: beams_54
+    21300110: beams_55
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -680,6 +683,19 @@ TextureImporter:
       name: beams_42
       rect:
         serializedVersion: 2
+        x: 300
+        y: 247
+        width: 22
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: beams_43
+      rect:
+        serializedVersion: 2
         x: 126
         y: 235
         width: 95
@@ -690,7 +706,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_43
+      name: beams_44
       rect:
         serializedVersion: 2
         x: 227
@@ -703,7 +719,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_44
+      name: beams_45
       rect:
         serializedVersion: 2
         x: 162
@@ -716,7 +732,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_45
+      name: beams_46
       rect:
         serializedVersion: 2
         x: 347
@@ -729,7 +745,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_46
+      name: beams_47
       rect:
         serializedVersion: 2
         x: 0
@@ -742,7 +758,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_47
+      name: beams_48
       rect:
         serializedVersion: 2
         x: 8
@@ -755,7 +771,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_48
+      name: beams_49
       rect:
         serializedVersion: 2
         x: 117
@@ -768,7 +784,20 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_49
+      name: beams_50
+      rect:
+        serializedVersion: 2
+        x: 286
+        y: 173
+        width: 62
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: beams_51
       rect:
         serializedVersion: 2
         x: 77
@@ -781,7 +810,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_50
+      name: beams_52
       rect:
         serializedVersion: 2
         x: 135
@@ -794,7 +823,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_51
+      name: beams_53
       rect:
         serializedVersion: 2
         x: 203
@@ -807,7 +836,20 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: beams_52
+      name: beams_54
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 49
+        width: 62
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: beams_55
       rect:
         serializedVersion: 2
         x: 153

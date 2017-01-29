@@ -6,6 +6,6 @@ public class EnemyExplosionScript : MonoBehaviour
 {
 	void Start () 
 	{
-		Destroy(gameObject, 1f);
+		Destroy(gameObject, 1.0f);
 	}
 }
