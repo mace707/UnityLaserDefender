@@ -8,6 +8,9 @@ public class EnemyScript : MonoBehaviour
 	{
 		LeftToRight,
 		RightToLeft,
+		SidesToCenter,
+		LeftToCenter,
+		RightToCenter,
 	}
 	public TravelPath Path;
 
@@ -39,7 +42,7 @@ public class EnemyScript : MonoBehaviour
 	public GameObject[] ItemDrops; 
 
 	// private
-	private bool MovingRight = true;
+	public bool MovingRight = true;
 	private bool MovingDown = false;
 	private bool MovingUp = false;
 
@@ -50,6 +53,7 @@ public class EnemyScript : MonoBehaviour
 
 	private float ScreenMaxX = 0;
 	private float ScreenMinX = 0;
+	private float ScreenMidX = 0;
 
 	private Vector3 StartVerticalVec = new Vector3(0,0,0);
 
@@ -60,19 +64,10 @@ public class EnemyScript : MonoBehaviour
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
 		ScreenMinX = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x;
 		ScreenMaxX = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distanceToCamera)).x;
+		ScreenMidX = Camera.main.ViewportToWorldPoint (new Vector3 (0.5f, 0, distanceToCamera)).x;
 
 		Width = gameObject.GetComponent<Collider2D>().bounds.size.x;
 		Height = gameObject.GetComponent<Collider2D>().bounds.size.y;
-
-		switch(Path)
-		{
-		case TravelPath.LeftToRight:
-			MovingRight = true;
-			break;
-		case TravelPath.RightToLeft:
-			MovingRight = false;
-			break;
-		}
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
@@ -111,39 +106,42 @@ public class EnemyScript : MonoBehaviour
 		{
 		case TravelPath.LeftToRight:
 		case TravelPath.RightToLeft:
-			MoveBasic();
+			Move(ScreenMinX, ScreenMaxX);
+			break;
+		case TravelPath.LeftToCenter:
+			Move(ScreenMinX, ScreenMidX);
+			break;
+		case TravelPath.RightToCenter:
+			Move(ScreenMidX, ScreenMaxX);
 			break;
 		}
 	}
 
-	void MoveBasic()
+	void Move(float minX, float maxX)
 	{
-		if(!MovingUp && !MovingDown) MoveHorizontal();
+		if(!MovingUp && !MovingDown) MoveHorizontal(minX, maxX);
 		else if (MovingDown) MoveDown();
 	}
 
-	void MoveHorizontal()
+	void MoveHorizontal(float xMin, float xMax)
 	{
-		if(transform.position.x < ScreenMinX + Width / 2)
+		if(transform.position.x < xMin + Width / 2)
 		{
 			MovingRight = true;
 			MovingDown = true;
 		}
-		else if(transform.position.x > ScreenMaxX - Width / 2)
+		else if(transform.position.x > xMax - Width / 2)
 		{
 			MovingRight = false;
 			MovingDown = true;
 		}
 
-		if(MovingRight)
-			transform.position += Vector3.right * 2 * Time.deltaTime;
-		else
-			transform.position += Vector3.left * 2 * Time.deltaTime;
+		if(MovingRight)	transform.position += Vector3.right * 2 * Time.deltaTime;
+		else			transform.position += Vector3.left * 2 * Time.deltaTime;
 	}
 
 	void MoveDown()
 	{
-		Debug.Log("Entered");
 		Vector3 vertVal = Vector3.down * Time.deltaTime * 2;
 		transform.position += vertVal;
 		StartVerticalVec += vertVal;
@@ -152,7 +150,6 @@ public class EnemyScript : MonoBehaviour
 		{
 			StartVerticalVec = new Vector3(0, 0, 0);
 			MovingDown = false;
-			Debug.Log("Exit");
 		}
 	}
 

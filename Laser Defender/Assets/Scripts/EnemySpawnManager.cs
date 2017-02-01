@@ -12,8 +12,8 @@ public class EnemySpawnManager : MonoBehaviour
 	bool EnemiesSpawned = false;
 
 	int SpawnCount = 0;
-	int FactionIndex = 0;
-	int EnemyIndex = 0;
+	public int FactionIndex = 0;
+	public int EnemyIndex = 0;
 	// Use this for initialization
 	void Start () 
 	{
@@ -41,18 +41,38 @@ public class EnemySpawnManager : MonoBehaviour
 
 		EnemyScript.TravelPath path = enemy.GetComponent<EnemyScript>().Path;
 
-		Vector3 startPos = TopLeft;
+		if(path == EnemyScript.TravelPath.SidesToCenter)
+		{
+			GameObject enemyLeft = (GameObject)Instantiate(enemy, TopLeft, Quaternion.identity);
+			GameObject enemyRight = (GameObject)Instantiate(enemy, TopRight, Quaternion.identity);
 
-		if(path == EnemyScript.TravelPath.RightToLeft)
-			startPos = TopRight;
+			EnemyScript esLeft = enemyLeft.GetComponent<EnemyScript>();
+			EnemyScript esRight = enemyRight.GetComponent<EnemyScript>();
 
-		Instantiate(enemy, startPos, Quaternion.identity);
+			esLeft.MovingRight = true;
+			esLeft.Path = EnemyScript.TravelPath.LeftToCenter;
 
-		if(SpawnCount > 100)
+			esRight.MovingRight = false;
+			esRight.Path = EnemyScript.TravelPath.RightToCenter;
+
+		}
+		else if (path == EnemyScript.TravelPath.LeftToRight)
+		{
+			GameObject enemyLeft = (GameObject)Instantiate(enemy, TopLeft, Quaternion.identity);
+			enemyLeft.GetComponent<EnemyScript>().MovingRight = true;
+		}
+		else if (path == EnemyScript.TravelPath.RightToLeft)
+		{
+			GameObject enemyRight = (GameObject)Instantiate(enemy, TopRight, Quaternion.identity);
+			enemyRight.GetComponent<EnemyScript>().MovingRight = false;
+		}
+
+		if(SpawnCount > 5)
 		{
 			EnemyIndex++;
 			SpawnCount = 0;
 		}
+
 		if(EnemyIndex > 3)
 		{
 			EnemyIndex = 0;

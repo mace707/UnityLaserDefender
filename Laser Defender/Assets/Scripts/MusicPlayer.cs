@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
+
 
 public class MusicPlayer : MonoBehaviour {
 	static MusicPlayer instance = null;
@@ -28,13 +30,23 @@ public class MusicPlayer : MonoBehaviour {
 		}
 	}
 
-	void OnLevelWasLoaded(int level)
+	void OnEnable()
+	{
+		SceneManager.sceneLoaded += OnLevelFinishedLoading;
+	}
+
+	void OnDisable()
+	{
+		SceneManager.sceneLoaded += OnLevelFinishedLoading;
+	}
+
+	void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
 	{
 		if(Music)
 		{
 			Music.Stop();
 
-			switch(level)
+			switch(scene.buildIndex)
 			{
 			case 0:
 				Music.clip = StartClip;
