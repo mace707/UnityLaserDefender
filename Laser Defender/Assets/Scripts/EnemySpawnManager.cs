@@ -39,11 +39,11 @@ public class EnemySpawnManager : MonoBehaviour
 		Transform factionTransform = Factions.Factions[FactionIndex].transform;
 		GameObject enemy =	factionTransform.GetChild(0).GetChild(EnemyIndex).gameObject;
 
-		EnemyScript.TravelPath path = enemy.GetComponent<EnemyScript>().TravelRoute;
+		EnemyScript.TravelPath path = enemy.GetComponent<EnemyScript>().Path;
 
 		Vector3 startPos = TopLeft;
 
-		if(path == EnemyScript.TravelPath.BasicRightToLeft || path == EnemyScript.TravelPath.RightToLeft2Down1Up)
+		if(path == EnemyScript.TravelPath.RightToLeft)
 			startPos = TopRight;
 
 		Instantiate(enemy, startPos, Quaternion.identity);

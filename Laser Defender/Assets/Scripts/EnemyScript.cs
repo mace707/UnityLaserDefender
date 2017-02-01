@@ -3,117 +3,156 @@ using System.Collections;
 
 public class EnemyScript : MonoBehaviour 
 {
-	[SerializeField]
-	public float Health 			= 150;
-	public float ProjectileSpeed 	= 50.0f;
-	public float ShotsPerSecond 	= 0.5f;
+	// Public
+	public enum TravelPath
+	{
+		LeftToRight,
+		RightToLeft,
+	}
+	public TravelPath Path;
 
+	public int SpawnCount = 0;
+
+	// Serialized Public
+	[SerializeField]
+	public float Health = 0;
+	[SerializeField]
+	public float ProjectileSpeed = 0;
+	[SerializeField]
+	public float ShotsPerSecond = 0;
+
+	[SerializeField]
+	public bool AimedShot = true;
+
+	[SerializeField]
+	public AudioClip FireSound;
+	[SerializeField]
+	public AudioClip DeathSound;
+
+	[SerializeField]
 	public GameObject Projectile;
+
+	[SerializeField]
+	public GameObject Explosion;
+
+	[SerializeField]
+	public GameObject[] ItemDrops; 
+
+	// private
+	private bool MovingRight = true;
+	private bool MovingDown = false;
+	private bool MovingUp = false;
+
+	private float Width = 0;
+	private float Height = 0;
 
 	private ScoreKeeper mScoreKeeper;
 
-	public AudioClip FireSound;
-	public AudioClip DeathSound;
+	private float ScreenMaxX = 0;
+	private float ScreenMinX = 0;
 
-	public GameObject Explosion;
-
-	public GameObject[] ItemDrops; 
-
-	public enum TravelPath
-	{
-		BasicLeftToRight,
-		BasicRightToLeft,
-		LeftToRight2Down1Up,
-		RightToLeft2Down1Up
-	}
-
-	public TravelPath TravelRoute;
-
-	public bool AimedShot = true;
-
-	float XMax = 0;
-	float XMin = 0;
-
-	bool MovingRight = true;
-
-	bool MoveDownStep = false;
-
-	bool MoveUpStep = false;
-
-	float Width, Height;
-
-	public int SpawnCount = 0;
+	private Vector3 StartVerticalVec = new Vector3(0,0,0);
 
 	void Start()
 	{
 		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
 
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
-		XMin = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x;
-		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distanceToCamera)).x;
+		ScreenMinX = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x;
+		ScreenMaxX = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distanceToCamera)).x;
 
 		Width = gameObject.GetComponent<Collider2D>().bounds.size.x;
 		Height = gameObject.GetComponent<Collider2D>().bounds.size.y;
+
+		switch(Path)
+		{
+		case TravelPath.LeftToRight:
+			MovingRight = true;
+			break;
+		case TravelPath.RightToLeft:
+			MovingRight = false;
+			break;
+		}
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		Projectile laser = col.gameObject.GetComponent<Projectile> ();
-
-		if(laser)
-		{
-			laser.Hit();
-			Health -= laser.GetDamage();
-			if(Health <= 0)
-				Die();
-		}
+		HandleCollision(col);
 	}
 
 	void FireProjectile()
 	{
+		Vector3 targetPosition = GameObject.Find("Player").transform.position;
+		float targetDirrection = AimedShot ? targetPosition.x - transform.position.x : 0;
+
+		GameObject projectile = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
+		projectile.GetComponent<Rigidbody2D>().velocity = new Vector2(targetDirrection, -ProjectileSpeed);
+
 		AudioSource.PlayClipAtPoint(FireSound, transform.position);
-
-		float playerXPos = GameObject.Find("Player").transform.position.x;
-
-		float xShootDirrection = AimedShot ? playerXPos - transform.position.x : 0;
-
-		GameObject beam = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
-		beam.GetComponent<Rigidbody2D>().velocity = new Vector2(xShootDirrection, -ProjectileSpeed);
 	}
 
 	// Update is called once per frame
-	void Update () 
+	void Update()
 	{
 		float probability = ShotsPerSecond * Time.deltaTime;
-		if (Random.value < probability)
-		{
+		if(Random.value < probability)
 			FireProjectile();
-		}
-
-		HandleTravelRoute();
-
-		if(MovingRight)	transform.position += Vector3.right * 2 * Time.deltaTime;
-		else transform.position += Vector3.left * 2 * Time.deltaTime;
 	}
 
-	void HandleTravelRoute()
+	// We need this in a fixed update otherwise some game objects jump randomly.
+	void FixedUpdate()
 	{
-		switch(TravelRoute)
+		HandleMovement();
+	}
+
+	void HandleMovement()
+	{
+		switch(Path)
 		{
-		case TravelPath.BasicLeftToRight:
+		case TravelPath.LeftToRight:
+		case TravelPath.RightToLeft:
+			MoveBasic();
+			break;
+		}
+	}
+
+	void MoveBasic()
+	{
+		if(!MovingUp && !MovingDown) MoveHorizontal();
+		else if (MovingDown) MoveDown();
+	}
+
+	void MoveHorizontal()
+	{
+		if(transform.position.x < ScreenMinX + Width / 2)
+		{
 			MovingRight = true;
-			MoveBasic();
-			break;
-		case TravelPath.BasicRightToLeft:
+			MovingDown = true;
+		}
+		else if(transform.position.x > ScreenMaxX - Width / 2)
+		{
 			MovingRight = false;
-			MoveBasic();
-			break;
-		case TravelPath.RightToLeft2Down1Up:
-			MoveRightToLeft2down1Up();
-			break;
-		case TravelPath.LeftToRight2Down1Up:
-			MoveLeftToRight2Down1Up();
-			break;
+			MovingDown = true;
+		}
+
+		if(MovingRight)
+			transform.position += Vector3.right * 2 * Time.deltaTime;
+		else
+			transform.position += Vector3.left * 2 * Time.deltaTime;
+	}
+
+	void MoveDown()
+	{
+		Debug.Log("Entered");
+		Vector3 vertVal = Vector3.down * Time.deltaTime * 2;
+		transform.position += vertVal;
+		StartVerticalVec += vertVal;
+
+		if(Mathf.Abs(StartVerticalVec.y) >= Height)
+		{
+			StartVerticalVec = new Vector3(0, 0, 0);
+			MovingDown = false;
+			Debug.Log("Exit");
 		}
 	}
 
@@ -132,77 +171,16 @@ public class EnemyScript : MonoBehaviour
 		Destroy(gameObject);
 	}
 
-	void MoveBasic()
+	void HandleCollision(Collider2D col)
 	{
-		if(transform.position.x < XMin + Width / 2)
+		Projectile laser = col.gameObject.GetComponent<Projectile> ();
+		if(laser)
 		{
-			MovingRight = true;
-			MoveDownStep = true;
-		} 
-		else if(transform.position.x > XMax - Width / 2)
-		{
-			MovingRight = false;
-			MoveDownStep = true;
-		}
-
-		if(MoveDownStep)
-		{
-			transform.position += Vector3.down * Height;
-			MoveDownStep = false;
+			laser.Hit();
+			Health -= laser.GetDamage();
+			if(Health <= 0)
+				Die();
 		}
 	}
-
-	void MoveLeftToRight2Down1Up()
-	{
-		if(transform.position.x < XMin + Width / 2)
-		{
-			MovingRight = true;
-			MoveUpStep = true;
-		} 
-		else if(transform.position.x > XMax - Width / 2)
-		{
-			MovingRight = false;
-			MoveDownStep = true;
-		}
-
-		if(MoveDownStep)
-		{
-			transform.position += Vector3.down * (Height * 2);
-			MoveDownStep = false;
-		}
-
-		if(MoveUpStep)
-		{
-			transform.position += Vector3.up * Height;
-			MoveUpStep = false;
-		}
-	}
-
-	void MoveRightToLeft2down1Up()
-	{
-		if(transform.position.x < XMin + Width / 2)
-		{
-			MovingRight = true;
-			MoveUpStep = true;
-		} 
-		else if(transform.position.x > XMax - Width / 2)
-		{
-			MovingRight = false;
-			MoveDownStep = true;
-		}
-
-		if(MoveDownStep)
-		{
-			transform.position += Vector3.down * (Height * 2);
-			MoveDownStep = false;
-		}
-
-		if(MoveUpStep)
-		{
-			transform.position += Vector3.up * Height;
-			MoveUpStep = false;
-		}
-	}
-
 }
 	
