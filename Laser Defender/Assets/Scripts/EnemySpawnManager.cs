@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemySpawnManager : MonoBehaviour 
 {
@@ -14,6 +15,33 @@ public class EnemySpawnManager : MonoBehaviour
 	int SpawnCount = 0;
 	public int FactionIndex = 0;
 	public int EnemyIndex = 0;
+
+	bool SpawnWave = true;
+
+	bool TrackSpawnedChildren = false;
+
+	/// <Menu>
+	// Move to its own source file and then add objects as necessary.
+	public Transform Canvas;
+	/// </Menu>
+
+	public void EndOfWave()
+	{
+		if(!Canvas.gameObject.activeInHierarchy)
+		{
+			Canvas.gameObject.SetActive(true);
+			Time.timeScale = 0;
+		}
+	}
+
+	public void SpawnNextWave()
+	{
+		Canvas.gameObject.SetActive(false);
+		Time.timeScale = 1;
+		EnemyIndex++;
+		SpawnWave = true;
+	}
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -32,10 +60,19 @@ public class EnemySpawnManager : MonoBehaviour
 			InvokeRepeating("SpawnNewShip", 1, 1);
 			EnemiesSpawned = true;
 		}
+
+		if(TrackSpawnedChildren && transform.childCount == 0)
+		{
+			TrackSpawnedChildren = false;
+			Invoke("EndOfWave", 5);
+		}
 	}
 
 	void SpawnNewShip()
 	{
+		if(!SpawnWave)
+			return;
+
 		Transform factionTransform = Factions.Factions[FactionIndex].transform;
 		GameObject enemy =	factionTransform.GetChild(0).GetChild(EnemyIndex).gameObject;
 
@@ -43,11 +80,11 @@ public class EnemySpawnManager : MonoBehaviour
 
 		if(path == EnemyScript.TravelPath.SidesToCenter)
 		{
-			GameObject enemyLeft = (GameObject)Instantiate(enemy, TopLeft, Quaternion.identity);
-			GameObject enemyRight = (GameObject)Instantiate(enemy, TopRight, Quaternion.identity);
+			GameObject instantiatedEnemyLeft = (GameObject)Instantiate(enemy, TopLeft, Quaternion.identity);
+			GameObject instantiatedEnemyRight = (GameObject)Instantiate(enemy, TopRight, Quaternion.identity);
 
-			EnemyScript esLeft = enemyLeft.GetComponent<EnemyScript>();
-			EnemyScript esRight = enemyRight.GetComponent<EnemyScript>();
+			EnemyScript esLeft = instantiatedEnemyLeft.GetComponent<EnemyScript>();
+			EnemyScript esRight = instantiatedEnemyRight.GetComponent<EnemyScript>();
 
 			esLeft.MovingRight = true;
 			esLeft.Path = EnemyScript.TravelPath.LeftToCenter;
@@ -55,30 +92,49 @@ public class EnemySpawnManager : MonoBehaviour
 			esRight.MovingRight = false;
 			esRight.Path = EnemyScript.TravelPath.RightToCenter;
 
+			esRight.transform.SetParent(this.transform);
+			esLeft.transform.SetParent(this.transform);
+
+			SpawnCount += 2;
+
+			if(SpawnCount >= esRight.SpawnCount)
+			{
+				SpawnWave = false;
+				SpawnCount = 0;
+			}
 		}
-		else if (path == EnemyScript.TravelPath.LeftToRight)
+		else if(path == EnemyScript.TravelPath.LeftToRight)
 		{
-			GameObject enemyLeft = (GameObject)Instantiate(enemy, TopLeft, Quaternion.identity);
-			enemyLeft.GetComponent<EnemyScript>().MovingRight = true;
+			GameObject instantiatedEnemy = (GameObject)Instantiate(enemy, TopLeft, Quaternion.identity);
+			EnemyScript es = instantiatedEnemy.GetComponent<EnemyScript>();
+			es.MovingRight = true;
+			es.transform.SetParent(this.transform);
+
+			SpawnCount++;
+
+			if(SpawnCount >= es.SpawnCount)
+			{
+				SpawnWave = false;
+				SpawnCount = 0;
+			}
+
 		}
-		else if (path == EnemyScript.TravelPath.RightToLeft)
+		else if(path == EnemyScript.TravelPath.RightToLeft)
 		{
-			GameObject enemyRight = (GameObject)Instantiate(enemy, TopRight, Quaternion.identity);
-			enemyRight.GetComponent<EnemyScript>().MovingRight = false;
+			GameObject instantiatedEnemy = (GameObject)Instantiate(enemy, TopRight, Quaternion.identity);
+			EnemyScript es = instantiatedEnemy.GetComponent<EnemyScript>();
+			es.MovingRight = false;
+			es.transform.SetParent(this.transform);
+
+			SpawnCount++;
+
+			if(SpawnCount >= es.SpawnCount)
+			{
+				SpawnWave = false;
+				SpawnCount = 0;
+			}
 		}
 
-		if(SpawnCount > 5)
-		{
-			EnemyIndex++;
-			SpawnCount = 0;
-		}
-
-		if(EnemyIndex > 3)
-		{
-			EnemyIndex = 0;
-			FactionIndex++;
-		}
-
-		SpawnCount++;
+		TrackSpawnedChildren = true;
 	}
 }
