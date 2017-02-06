@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemySpawnerTemp : MonoBehaviour 
 {
@@ -26,6 +27,7 @@ public class EnemySpawnerTemp : MonoBehaviour
 
 	private bool EnemySpawnBothSides;
 
+	SpawnCounter mSpawnCounter;
 	// Use this for initialization
 	void Start () 
 	{
@@ -36,6 +38,7 @@ public class EnemySpawnerTemp : MonoBehaviour
 		FactionSpawnIndex = 0;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
+		mSpawnCounter = GameObject.Find("SpawnCountText").GetComponent<SpawnCounter>();
 		ScreenSetup();
 	}
 
@@ -75,6 +78,8 @@ public class EnemySpawnerTemp : MonoBehaviour
 
 		EnemySpawnCountMax = Enemy.SpawnCount;
 		EnemySpawnCount = 0;
+
+		mSpawnCounter.SetMax(EnemySpawnCountMax);
 
 		switch(Enemy.Path)
 		{
@@ -131,6 +136,7 @@ public class EnemySpawnerTemp : MonoBehaviour
 		if(!Canvas.gameObject.activeInHierarchy)
 		{
 			Canvas.gameObject.SetActive(true);
+			CancelInvoke ("SpawnEnemy");
 			Time.timeScale = 0;
 		}
 	}

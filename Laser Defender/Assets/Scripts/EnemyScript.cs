@@ -57,9 +57,12 @@ public class EnemyScript : MonoBehaviour
 
 	private Vector3 StartVerticalVec = new Vector3(0,0,0);
 
+	SpawnCounter mSpawnCounter;
+
 	void Start()
 	{
 		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
+		mSpawnCounter = GameObject.Find("SpawnCountText").GetComponent<SpawnCounter>();
 
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
 		ScreenMinX = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x;
@@ -174,6 +177,7 @@ public class EnemyScript : MonoBehaviour
 
 	void Die()
 	{
+		mSpawnCounter.ChangeCount();
 		Instantiate(Explosion, transform.position, Quaternion.identity);
 		int itemDropIndex = Random.Range(0, 11);
 		if(itemDropIndex < ItemDrops.Length)
