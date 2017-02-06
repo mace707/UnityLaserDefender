@@ -77,11 +77,18 @@ public class EnemyScript : MonoBehaviour
 
 	void FireProjectile()
 	{
-		Vector3 targetPosition = GameObject.Find("Player").transform.position;
-		float targetDirrection = AimedShot ? targetPosition.x - transform.position.x : 0;
+		GameObject projectile = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
 
-		GameObject projectile = (GameObject)Instantiate (Projectile, transform.position, Quaternion.identity);
-		projectile.GetComponent<Rigidbody2D>().velocity = new Vector2(targetDirrection, -ProjectileSpeed);
+		if(AimedShot)
+		{
+			Vector3 targetPosition = GameObject.Find("Player").transform.position;
+			Vector3 relativePos = targetPosition - transform.position;
+			projectile.GetComponent<Rigidbody2D>().velocity = relativePos.normalized * ProjectileSpeed;
+		}
+		else
+		{
+			projectile.GetComponent<Rigidbody2D>().velocity = Vector3.down * ProjectileSpeed;
+		}
 
 		AudioSource.PlayClipAtPoint(FireSound, transform.position);
 	}
