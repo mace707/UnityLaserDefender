@@ -8,6 +8,8 @@ public class Projectile : MonoBehaviour
 	public bool IsIceProjectile = false;
 	public bool IsExplodingProjectile = false;
 
+	public float SlowDownFactor = 1;
+
 	public GameObject ExplodingProjectile;
 
 	public float GetDamage()
@@ -19,7 +21,7 @@ public class Projectile : MonoBehaviour
 	{
 		if(IsExplodingProjectile)
 			Instantiate(ExplodingProjectile, transform.position, Quaternion.identity);
-		
+
 		Destroy(gameObject);
 	}
 }

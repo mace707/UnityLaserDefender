@@ -39,7 +39,6 @@ public class EnemySpawner : MonoBehaviour
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
 		XMin = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x ;
 		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distanceToCamera)).x;
-
 	}
 
 	void SpawnBoss()

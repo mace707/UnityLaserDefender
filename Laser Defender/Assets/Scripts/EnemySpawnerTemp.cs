@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class EnemySpawnerTemp : MonoBehaviour 
 {
-	private int FactionSpawnIndex;
+	public int FactionSpawnIndex;
 	private int EnemySpawnIndex;
 
 	public FactionManager mFactionMgr;
@@ -35,7 +35,7 @@ public class EnemySpawnerTemp : MonoBehaviour
 		EnemySpawningActive = false;
 		EnemySpawnBothSides = false;
 		EnemySpawnIndex = -1;
-		FactionSpawnIndex = 0;
+//		FactionSpawnIndex = 0;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
 		mSpawnCounter = GameObject.Find("SpawnCountText").GetComponent<SpawnCounter>();
@@ -69,9 +69,6 @@ public class EnemySpawnerTemp : MonoBehaviour
 			EnemySpawnIndex = 0;
 			FactionSpawnIndex++;
 		}
-
-		Debug.Log(EnemySpawnIndex);
-		Debug.Log(FactionSpawnIndex);
 
 		EnemyGO = mFactionMgr.Factions[FactionSpawnIndex].transform.GetChild(0).GetChild(EnemySpawnIndex).gameObject;
 		Enemy = EnemyGO.GetComponent<EnemyScript>();
@@ -115,12 +112,9 @@ public class EnemySpawnerTemp : MonoBehaviour
 				GameObject enemyGORight = (GameObject)Instantiate(EnemyGO, TopRight, Quaternion.identity);
 
 				EnemyScript esl = enemyGOLeft.GetComponent<EnemyScript>();
-				EnemyScript esr = enemyGOLeft.GetComponent<EnemyScript>();
+				EnemyScript esr = enemyGORight.GetComponent<EnemyScript>();
 
-				esl.MovingRight = true;
 				esl.Path = EnemyScript.TravelPath.LeftToCenter;
-
-				esr.MovingRight = false;
 				esr.Path = EnemyScript.TravelPath.RightToCenter;
 
 				enemyGOLeft.transform.SetParent(this.transform);

@@ -72,17 +72,8 @@ public class EnemyScript : MonoBehaviour
 		Width = gameObject.GetComponent<Collider2D>().bounds.size.x;
 		Height = gameObject.GetComponent<Collider2D>().bounds.size.y;
 
-		switch(Path)
-		{
-		case TravelPath.LeftToCenter:
-		case TravelPath.LeftToRight:
-			MovingRight = true;
-			break;
-		case TravelPath.RightToCenter:
-		case TravelPath.RightToLeft:
-			MovingRight = false;
-			break;
-		}
+		if(transform.position.x < ScreenMidX)	MovingRight = true;
+		else MovingRight = false;
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
@@ -135,6 +126,10 @@ public class EnemyScript : MonoBehaviour
 			break;
 		case TravelPath.RightToCenter:
 			Move(ScreenMidX, ScreenMaxX);
+			break;
+		case TravelPath.SidesToCenter:
+			break;
+		default:
 			break;
 		}
 	}

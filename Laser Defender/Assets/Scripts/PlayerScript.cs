@@ -140,6 +140,11 @@ public class PlayerScript : MonoBehaviour
 
 		if(laser)
 		{
+			if(laser.IsIceProjectile)
+				SlowDownPlayer(laser.SlowDownFactor);
+			else if(laser.IsExplodingProjectile)
+				PostExplosionShift(laser.transform.position);
+
 			laser.Hit();
 			HitPoints -= laser.GetDamage();
 			UpdateHealthBar();
@@ -228,5 +233,29 @@ public class PlayerScript : MonoBehaviour
 			HealthBarForeGround.color = new Color32(255, 0, 0, 200);
 
 		HealthBarRatioText.text = "HP " + (Mathf.Floor(ratio * 100)).ToString() + '%';
+	}
+
+	void PostExplosionShift(Vector3 impactLocation)
+	{
+		if (impactLocation.x < transform.position.x)
+			transform.position += Vector3.right;
+		else
+			transform.position += Vector3.left;
+	}
+
+	void SlowDownPlayer(float factor)
+	{
+		Speed *= factor;
+		ProjectileSpeed *= factor;
+		FiringRate /= factor;
+		StartCoroutine(ReturnToNormal(factor, 5));
+	}
+
+	IEnumerator ReturnToNormal(float factor, float delayTime)
+	{
+		yield return new WaitForSeconds(delayTime);
+		Speed /= factor;
+		ProjectileSpeed /= factor;
+		FiringRate *= factor;
 	}
 }
