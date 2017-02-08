@@ -5,10 +5,12 @@ using UnityEngine.UI;
 
 public class EnemySpawnerTemp : MonoBehaviour 
 {
-	public int FactionSpawnIndex;
-	private int EnemySpawnIndex;
-
 	public FactionManager mFactionMgr;
+
+	[SerializeField]
+	public int FactionSpawnIndex;
+	[SerializeField]
+	public int EnemySpawnIndex;
 
 	private EnemyScript Enemy;
 	private GameObject EnemyGO;
@@ -20,12 +22,13 @@ public class EnemySpawnerTemp : MonoBehaviour
 	private Vector3 TopRight;
 	private Vector3 EnemySpawnPosition;
 
-	public bool StartSpawningNextWave;
 	private bool EnemySpawningActive;
 
 	public Transform Canvas;
 
 	private bool EnemySpawnBothSides;
+
+	private bool StartSpawningNextWave;
 
 	SpawnCounter mSpawnCounter;
 	// Use this for initialization
