@@ -10,7 +10,8 @@ public class DustKeeper : MonoBehaviour
 	void Start()
 	{
 		mText = GetComponent<Text>();
-		Reset();
+		Dust = PlayerPrefs.GetInt("Dust", DustKeeper.Dust);
+		SetScore(Dust);
 	}
 
 	public void SetScore(int dust)

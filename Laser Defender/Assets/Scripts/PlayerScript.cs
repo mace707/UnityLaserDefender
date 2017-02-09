@@ -34,6 +34,8 @@ public class PlayerScript : MonoBehaviour
 	[SerializeField]
 	public bool DoubleShotEnabled = true;
 
+	public Transform CustomizeCanvas;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -206,9 +208,15 @@ public class PlayerScript : MonoBehaviour
 
 	void Die()
 	{
+		SaveSettings();
 		LevelManager mgr = GameObject.Find("LevelManager").GetComponent<LevelManager>();
 		mgr.LoadLevel("Win Screen");
 		Destroy(gameObject);
+	}
+
+	void SaveSettings()
+	{
+		PlayerPrefs.SetInt("Dust", DustKeeper.Dust);
 	}
 
 	private void UpdateShieldPointBar()
@@ -257,5 +265,10 @@ public class PlayerScript : MonoBehaviour
 		Speed /= factor;
 		ProjectileSpeed /= factor;
 		FiringRate *= factor;
+	}
+
+	public void CustomizeShip()
+	{
+		CustomizeCanvas.gameObject.SetActive(true);
 	}
 }

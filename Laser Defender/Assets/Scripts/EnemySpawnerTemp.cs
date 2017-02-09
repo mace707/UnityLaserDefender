@@ -24,7 +24,7 @@ public class EnemySpawnerTemp : MonoBehaviour
 
 	private bool EnemySpawningActive;
 
-	public Transform Canvas;
+	public Transform PauseCanvas;
 
 	private bool EnemySpawnBothSides;
 
@@ -130,9 +130,9 @@ public class EnemySpawnerTemp : MonoBehaviour
 
 	void PostSpawnEnemy()
 	{
-		if(!Canvas.gameObject.activeInHierarchy)
+		if(!PauseCanvas.gameObject.activeInHierarchy)
 		{
-			Canvas.gameObject.SetActive(true);
+			PauseCanvas.gameObject.SetActive(true);
 			CancelInvoke ("SpawnEnemy");
 			Time.timeScale = 0;
 		}
@@ -154,7 +154,7 @@ public class EnemySpawnerTemp : MonoBehaviour
 
 	public void SetStartSpawningNextWave()
 	{
-		Canvas.gameObject.SetActive(false);
+		PauseCanvas.gameObject.SetActive(false);
 		Time.timeScale = 1;
 		StartSpawningNextWave = true;
 	}
