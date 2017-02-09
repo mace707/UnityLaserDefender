@@ -16,6 +16,7 @@ public class EnemyScript : MonoBehaviour
 
 	public int SpawnCount = 0;
 
+
 	// Serialized Public
 	[SerializeField]
 	public float Health = 0;
@@ -23,6 +24,9 @@ public class EnemyScript : MonoBehaviour
 	public float ProjectileSpeed = 0;
 	[SerializeField]
 	public float ShotsPerSecond = 0;
+
+	[SerializeField]
+	public int Score = 100;
 
 	[SerializeField]
 	public bool AimedShot = true;
@@ -40,6 +44,11 @@ public class EnemyScript : MonoBehaviour
 
 	[SerializeField]
 	public GameObject[] ItemDrops; 
+
+	[SerializeField]
+	public float[] ItemDropProbabilities; 
+
+
 
 	// private
 	public bool MovingRight = true;
@@ -174,15 +183,16 @@ public class EnemyScript : MonoBehaviour
 	{
 		mSpawnCounter.ChangeCount();
 		Instantiate(Explosion, transform.position, Quaternion.identity);
-		int itemDropIndex = Random.Range(0, 11);
-		if(itemDropIndex < ItemDrops.Length)
+		int itemDropIndex = Random.Range(0, ItemDrops.Length);
+
+		if(Random.value < ItemDropProbabilities[itemDropIndex])
 		{
 			GameObject itemDrop = Instantiate(ItemDrops[itemDropIndex], transform.position, Quaternion.identity);
 			itemDrop.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.position.x, -5);
 		}
 
 		AudioSource.PlayClipAtPoint(DeathSound, transform.position, 50f);
-		mScoreKeeper.SetScore(175);
+		mScoreKeeper.SetScore(Score);
 		Destroy(gameObject);
 	}
 
