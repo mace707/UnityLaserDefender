@@ -12,6 +12,11 @@ public class Projectile : MonoBehaviour
 
 	public GameObject ExplodingProjectile;
 
+	public void SetDamage(float damage)
+	{
+		Damage = damage;
+	}
+
 	public float GetDamage()
 	{
 		return Damage;

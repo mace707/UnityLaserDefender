@@ -11,7 +11,7 @@ public class PlayerScript : MonoBehaviour
 	float XMax = 5;
 	float Padding = 0.5f;
 
-	public GameObject Projectile;
+	public GameObject ProjectileGO;
 	public GameObject Shield;
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
@@ -20,6 +20,7 @@ public class PlayerScript : MonoBehaviour
 	private float ShieldPoints = 100;
 	public float MaxShieldPoints = 100;
 
+	public float Damage;
 
 	private GameObject ActiveShield;
 
@@ -65,14 +66,15 @@ public class PlayerScript : MonoBehaviour
 		{
 			Vector3 leftBeamPos = new Vector3(transform.position.x - 0.5f, transform.position.y + 0.25f, transform.position.z);
 			Vector3 rightBeamPos = new Vector3(transform.position.x + 0.5f, transform.position.y + 0.25f, transform.position.z);
-			GameObject leftBeam = (GameObject)Instantiate(Projectile, leftBeamPos, Quaternion.identity);
-			GameObject rightBeam = (GameObject)Instantiate(Projectile, rightBeamPos, Quaternion.identity);
+			GameObject leftBeam = (GameObject)Instantiate(ProjectileGO, leftBeamPos, Quaternion.identity);
+			GameObject rightBeam = (GameObject)Instantiate(ProjectileGO, rightBeamPos, Quaternion.identity);
 			leftBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
 			rightBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
 		} 
 		else
 		{
-			GameObject beam = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
+			GameObject beam = (GameObject)Instantiate(ProjectileGO, transform.position, Quaternion.identity);
+			beam.GetComponent<Projectile>().SetDamage(Damage);
 			beam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
 		}
 	}
@@ -109,13 +111,10 @@ public class PlayerScript : MonoBehaviour
 			transform.position += Vector3.right * Speed * Time.deltaTime;
 			mAnimator.SetInteger ("PlayerDirrection", 1);
 		}
-		else
-		{
-			mAnimator.SetInteger ("PlayerDirrection", 0);
-		}
+
 
 		if (Input.GetKeyDown(KeyCode.Space)) 
-			InvokeRepeating ("FireProjectile", 0.00001f, FiringRate);
+			InvokeRepeating ("FireProjectile", FiringRate, FiringRate);
 		if (Input.GetKeyUp (KeyCode.Space))
 			CancelInvoke ("FireProjectile");
 
@@ -270,5 +269,10 @@ public class PlayerScript : MonoBehaviour
 	public void CustomizeShip()
 	{
 		CustomizeCanvas.gameObject.SetActive(true);
+	}
+
+	public void CustomizeShipCanceled()
+	{
+		CustomizeCanvas.gameObject.SetActive(false);
 	}
 }
