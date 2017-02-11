@@ -18,7 +18,7 @@ public class Asteroid : MonoBehaviour
 
 	void Start()
 	{
-		mDustKeeper = GameObject.Find("Dust").GetComponent<DustKeeper>();
+		mDustKeeper = GameObject.Find(StringConstants.PPDust).GetComponent<DustKeeper>();
 	}
 
 	void OnTriggerEnter2D(Collider2D col)

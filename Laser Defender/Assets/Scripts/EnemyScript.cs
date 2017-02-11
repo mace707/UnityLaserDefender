@@ -70,8 +70,8 @@ public class EnemyScript : MonoBehaviour
 
 	void Start()
 	{
-		mScoreKeeper = GameObject.Find("Score").GetComponent<ScoreKeeper>();
-		mSpawnCounter = GameObject.Find("SpawnCountText").GetComponent<SpawnCounter>();
+		mScoreKeeper = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreKeeper>();
+		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<SpawnCounter>();
 
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
 		ScreenMinX = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x;
@@ -96,7 +96,7 @@ public class EnemyScript : MonoBehaviour
 
 		if(AimedShot)
 		{
-			Vector3 targetPosition = GameObject.Find("Player").transform.position;
+			Vector3 targetPosition = GameObject.Find(StringConstants.GOPlayer).transform.position;
 			Vector3 relativePos = targetPosition - transform.position;
 			projectile.GetComponent<Rigidbody2D>().velocity = relativePos.normalized * ProjectileSpeed;
 		}

@@ -4,9 +4,6 @@ using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour 
 {
-	[SerializeField]
-	float Speed = 15.0f;
-
 	float XMin = -5;
 	float XMax = 5;
 	float Padding = 0.5f;
@@ -15,8 +12,6 @@ public class PlayerScript : MonoBehaviour
 	public GameObject Shield;
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
-	private float HitPoints = 100;
-	public float MaxHitPoints = 100;
 	private float ShieldPoints = 100;
 	public float MaxShieldPoints = 100;
 
@@ -25,7 +20,6 @@ public class PlayerScript : MonoBehaviour
 	private GameObject ActiveShield;
 
 	public AudioClip FireSound;
-	Animator mAnimator;
 	public Image HealthBarForeGround;
 	public Text HealthBarRatioText;
 
@@ -37,11 +31,35 @@ public class PlayerScript : MonoBehaviour
 
 	public Transform CustomizeCanvas;
 
+	public GameObject mPropertyKeeperHealth;
+	public GameObject mPropertyKeeperDamage;
+	public GameObject mPropertyKeeperSpeed;
+	public GameObject mPropertyKeeperShield;
+	public GameObject mPropertyKeeperProjectiles;
+
+	public float MaxHitPoints = 100;
+	private float HitPoints = 100;
+	private float DefaultHitpoints = 100;
+	private float StartingHitpoints = 100;
+
+	[SerializeField]
+	public float Speed = 15.0f;
+	private float DefaultSpeed = 15.0f;
+	private float StartingSpeed = 15.0f;
+
+	private DustKeeper mDustKeeper;
+
 	// Use this for initialization
 	void Start () 
 	{
-		HitPoints = MaxHitPoints;
 		ShieldPoints = MaxShieldPoints;
+
+		StartingHitpoints = PlayerPrefs.GetFloat(StringConstants.PPHitPoints, DefaultHitpoints);
+		HitPoints = StartingHitpoints;
+		MaxHitPoints = StartingHitpoints;
+
+		StartingSpeed = PlayerPrefs.GetFloat(StringConstants.PPSpeed, DefaultSpeed);
+		Speed = StartingSpeed;
 
 		//Distance between the camera and the object.
 		float distance = transform.position.z - Camera.main.transform.position.z;
@@ -51,7 +69,7 @@ public class PlayerScript : MonoBehaviour
 		XMin = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distance)).x + Padding;
 		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distance)).x - Padding;
 
-		mAnimator = GetComponent<Animator>();
+		mDustKeeper = GameObject.Find(StringConstants.PPDust).GetComponent<DustKeeper>();
 
 		UpdateHealthBar();
 		UpdateShieldPointBar();
@@ -101,22 +119,11 @@ public class PlayerScript : MonoBehaviour
 	{
 		// Time.Deltatime (Time between frames) makes it frame rate independant. 
 		// If a frame takes longer to render, it will move at a higher speed.
-		if (Input.GetKey (KeyCode.LeftArrow))
-		{
-			transform.position += Vector3.left * Speed * Time.deltaTime;
-			mAnimator.SetInteger ("PlayerDirrection", -1);
-		}
-		else if (Input.GetKey (KeyCode.RightArrow))
-		{
-			transform.position += Vector3.right * Speed * Time.deltaTime;
-			mAnimator.SetInteger ("PlayerDirrection", 1);
-		}
+		if (Input.GetKey (KeyCode.LeftArrow))			transform.position += Vector3.left * Speed * Time.deltaTime;
+		else if (Input.GetKey (KeyCode.RightArrow))		transform.position += Vector3.right * Speed * Time.deltaTime;
 
-
-		if (Input.GetKeyDown(KeyCode.Space)) 
-			InvokeRepeating ("FireProjectile", FiringRate, FiringRate);
-		if (Input.GetKeyUp (KeyCode.Space))
-			CancelInvoke ("FireProjectile");
+		if (Input.GetKeyDown(KeyCode.Space)) 		InvokeRepeating ("FireProjectile", FiringRate, FiringRate);
+		if (Input.GetKeyUp (KeyCode.Space))			CancelInvoke ("FireProjectile");
 
 		if(Input.GetKeyDown(KeyCode.LeftShift))
 		{
@@ -208,14 +215,14 @@ public class PlayerScript : MonoBehaviour
 	void Die()
 	{
 		SaveSettings();
-		LevelManager mgr = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-		mgr.LoadLevel("Win Screen");
+		LevelManager mgr = GameObject.Find(StringConstants.SCRIPTLevelManager).GetComponent<LevelManager>();
+		mgr.LoadLevel(StringConstants.SCENEWin);
 		Destroy(gameObject);
 	}
 
 	void SaveSettings()
 	{
-		PlayerPrefs.SetInt("Dust", DustKeeper.Dust);
+		PlayerPrefs.SetInt(StringConstants.PPDust, DustKeeper.Dust);
 	}
 
 	private void UpdateShieldPointBar()
@@ -230,24 +237,18 @@ public class PlayerScript : MonoBehaviour
 		float ratio = HitPoints / MaxHitPoints;
 		HealthBarForeGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
 
-		if(ratio > 0.75)
-			HealthBarForeGround.color = new Color32(0, 255, 0, 200);
-		else if(ratio > 0.50)
-			HealthBarForeGround.color = new Color32(255, 255, 0, 200);
-		else if(ratio > 0.25)
-			HealthBarForeGround.color = new Color32(255, 165, 0, 200);
-		else if(ratio >= 0)
-			HealthBarForeGround.color = new Color32(255, 0, 0, 200);
+		if(ratio > 0.75)			HealthBarForeGround.color = new Color32(0, 255, 0, 200);
+		else if(ratio > 0.50)		HealthBarForeGround.color = new Color32(255, 255, 0, 200);
+		else if(ratio > 0.25)		HealthBarForeGround.color = new Color32(255, 165, 0, 200);
+		else if(ratio >= 0)			HealthBarForeGround.color = new Color32(255, 0, 0, 200);
 
-		HealthBarRatioText.text = "HP " + (Mathf.Floor(ratio * 100)).ToString() + '%';
+		HealthBarRatioText.text = "HP " + HitPoints.ToString() + "/" + MaxHitPoints.ToString();
 	}
 
 	void PostExplosionShift(Vector3 impactLocation)
 	{
-		if (impactLocation.x < transform.position.x)
-			transform.position += Vector3.right;
-		else
-			transform.position += Vector3.left;
+		if (impactLocation.x < transform.position.x)			transform.position += Vector3.right;
+		else													transform.position += Vector3.left;
 	}
 
 	void SlowDownPlayer(float factor)
@@ -268,11 +269,73 @@ public class PlayerScript : MonoBehaviour
 
 	public void CustomizeShip()
 	{
+		Time.timeScale = 1;
 		CustomizeCanvas.gameObject.SetActive(true);
+
+		ResetValues();
+
+		Invoke("UpdateValues", 0.000001f);
+	}
+
+	public void UpdateValues()
+	{
+		mPropertyKeeperHealth.GetComponent<PropertyKeeper>().SetScore(HitPoints);
+		mPropertyKeeperSpeed.GetComponent<PropertyKeeper>().SetScore(Speed);
+		mPropertyKeeperDamage.GetComponent<PropertyKeeper>().SetScore(Damage);
+		mPropertyKeeperShield.GetComponent<PropertyKeeper>().SetScore(ShieldPoints);
+		mPropertyKeeperProjectiles.GetComponent<PropertyKeeper>().SetScore(1);
+		Time.timeScale = 0;
 	}
 
 	public void CustomizeShipCanceled()
 	{
+		PlayerPrefs.GetFloat(StringConstants.PPHitPoints, StartingHitpoints);
+		PlayerPrefs.GetFloat(StringConstants.PPSpeed, StartingSpeed);
 		CustomizeCanvas.gameObject.SetActive(false);
 	}
+
+	public void AcceptShipUpgrades()
+	{
+		PlayerPrefs.SetFloat(StringConstants.PPHitPoints, HitPoints);
+		StartingHitpoints = HitPoints;
+		MaxHitPoints = HitPoints;
+
+		PlayerPrefs.SetFloat(StringConstants.PPSpeed, Speed);
+		StartingSpeed = Speed;
+
+		UpdateHealthBar();
+
+		CustomizeCanvas.gameObject.SetActive(false);
+	}
+
+	public void ResetValues()
+	{
+		HitPoints = StartingHitpoints;
+		Speed = StartingSpeed;
+	}
+
+	public void UpgradeHealth()
+	{
+		float cost = HitPoints / DefaultHitpoints * 100;
+		if(cost <= DustKeeper.Dust)
+		{
+			mDustKeeper.SetScore((int)-cost);
+			HitPoints *= 2;
+			UpdateValues();
+		}
+	}
+
+
+	public void UpgradeSpeed()
+	{
+		float cost =  ((Speed + 3 - DefaultSpeed)/3) * 200;
+		if(cost <= DustKeeper.Dust)
+		{
+			mDustKeeper.SetScore((int)-cost);
+			Speed += 3;
+			UpdateValues();
+		}
+	}
+
+
 }

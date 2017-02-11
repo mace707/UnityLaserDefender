@@ -41,7 +41,7 @@ public class EnemySpawnerTemp : MonoBehaviour
 //		FactionSpawnIndex = 0;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
-		mSpawnCounter = GameObject.Find("SpawnCountText").GetComponent<SpawnCounter>();
+		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<SpawnCounter>();
 		ScreenSetup();
 	}
 
