@@ -241,14 +241,14 @@ public class PlayerScript : MonoBehaviour
 		PlayerPrefs.SetInt(StringConstants.PPDust, DustKeeper.Dust);
 	}
 
-	private void UpdateShieldPointBar()
+	public void UpdateShieldPointBar()
 	{
 		float ratio = ShieldPoints / MaxShieldPoints;
 		ShieldBarForGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
 		ShieldBarRatioText.text = "SP " + (Mathf.Floor(ratio * 100)).ToString() + '%';
 	}
 
-	private void UpdateHealthBar()
+	public void UpdateHealthBar()
 	{
 		float ratio = HitPoints / MaxHitPoints;
 		HealthBarForeGround.rectTransform.localScale = new Vector3(ratio, 1, 1);

@@ -30,6 +30,8 @@ public class EnemySpawnerTemp : MonoBehaviour
 
 	private bool StartSpawningNextWave;
 
+	public PlayerScript Player;
+
 	SpawnCounter mSpawnCounter;
 	// Use this for initialization
 	void Start () 
@@ -154,6 +156,9 @@ public class EnemySpawnerTemp : MonoBehaviour
 
 	public void SetStartSpawningNextWave()
 	{
+		Player.ResetValues();
+		Player.UpdateHealthBar();
+		Player.UpdateShieldPointBar();
 		PauseCanvas.gameObject.SetActive(false);
 		Time.timeScale = 1;
 		StartSpawningNextWave = true;
