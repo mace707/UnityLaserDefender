@@ -7,6 +7,8 @@ public class StringConstants : MonoBehaviour
 	public const string PPHitPoints = "HitPoints";
 	public const string PPSpeed = "Speed";
 	public const string PPDust = "Dust";
+	public const string PPDamage = "Damage";
+	public const string PPShieldPoints = "ShieldPoints";
 
 	public const string SCRIPTLevelManager = "LevelManager";
 

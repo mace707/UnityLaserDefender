@@ -12,10 +12,6 @@ public class PlayerScript : MonoBehaviour
 	public GameObject Shield;
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
-	private float ShieldPoints = 100;
-	public float MaxShieldPoints = 100;
-
-	public float Damage;
 
 	private GameObject ActiveShield;
 
@@ -37,6 +33,12 @@ public class PlayerScript : MonoBehaviour
 	public GameObject mPropertyKeeperShield;
 	public GameObject mPropertyKeeperProjectiles;
 
+	public GameObject mPropertyKeeperHealthCost;
+	public GameObject mPropertyKeeperDamageCost;
+	public GameObject mPropertyKeeperSpeedCost;
+	public GameObject mPropertyKeeperShieldCost;
+	public GameObject mPropertyKeeperProjectilesCost;
+
 	public float MaxHitPoints = 100;
 	private float HitPoints = 100;
 	private float DefaultHitpoints = 100;
@@ -47,12 +49,22 @@ public class PlayerScript : MonoBehaviour
 	private float DefaultSpeed = 15.0f;
 	private float StartingSpeed = 15.0f;
 
+	public float Damage = 100;
+	private float DefaultDamage = 100;
+	private float StartingDamage = 100;
+
 	private DustKeeper mDustKeeper;
+
+	public float MaxShieldPoints = 100;
+	private float ShieldPoints = 100;
+	private float DefaultShieldPoints = 100;
+	private float StartingShieldPoints = 100;
 
 	// Use this for initialization
 	void Start () 
 	{
-		ShieldPoints = MaxShieldPoints;
+		StartingDamage = PlayerPrefs.GetFloat(StringConstants.PPDamage, DefaultDamage);
+		Damage = StartingDamage;
 
 		StartingHitpoints = PlayerPrefs.GetFloat(StringConstants.PPHitPoints, DefaultHitpoints);
 		HitPoints = StartingHitpoints;
@@ -60,6 +72,10 @@ public class PlayerScript : MonoBehaviour
 
 		StartingSpeed = PlayerPrefs.GetFloat(StringConstants.PPSpeed, DefaultSpeed);
 		Speed = StartingSpeed;
+
+		StartingShieldPoints = PlayerPrefs.GetFloat(StringConstants.PPShieldPoints, DefaultShieldPoints);
+		ShieldPoints = StartingShieldPoints;
+		MaxShieldPoints = StartingShieldPoints;
 
 		//Distance between the camera and the object.
 		float distance = transform.position.z - Camera.main.transform.position.z;
@@ -284,13 +300,19 @@ public class PlayerScript : MonoBehaviour
 		mPropertyKeeperDamage.GetComponent<PropertyKeeper>().SetScore(Damage);
 		mPropertyKeeperShield.GetComponent<PropertyKeeper>().SetScore(ShieldPoints);
 		mPropertyKeeperProjectiles.GetComponent<PropertyKeeper>().SetScore(1);
+
+		mPropertyKeeperHealthCost.GetComponent<Text>().text 		= UpgradeCostHealth().ToString() + "$";
+		mPropertyKeeperSpeedCost.GetComponent<Text>().text 			= UpgradeCostSpeed().ToString() + "$";
+		mPropertyKeeperDamageCost.GetComponent<Text>().text 		= UpgradeCostDamage().ToString() + "$";
+		mPropertyKeeperShieldCost.GetComponent<Text>().text 		= UpgradeCostShield().ToString() + "$";
+		mPropertyKeeperProjectilesCost.GetComponent<Text>().text 	= "NA";
+
 		Time.timeScale = 0;
 	}
 
 	public void CustomizeShipCanceled()
 	{
-		PlayerPrefs.GetFloat(StringConstants.PPHitPoints, StartingHitpoints);
-		PlayerPrefs.GetFloat(StringConstants.PPSpeed, StartingSpeed);
+		ResetValues();
 		CustomizeCanvas.gameObject.SetActive(false);
 	}
 
@@ -303,7 +325,15 @@ public class PlayerScript : MonoBehaviour
 		PlayerPrefs.SetFloat(StringConstants.PPSpeed, Speed);
 		StartingSpeed = Speed;
 
+		PlayerPrefs.SetFloat(StringConstants.PPDamage, Damage);
+		StartingDamage = Damage;
+
+		PlayerPrefs.SetFloat(StringConstants.PPShieldPoints, ShieldPoints);
+		StartingShieldPoints = ShieldPoints;
+		MaxShieldPoints = ShieldPoints;
+
 		UpdateHealthBar();
+		UpdateShieldPointBar();
 
 		CustomizeCanvas.gameObject.SetActive(false);
 	}
@@ -312,11 +342,13 @@ public class PlayerScript : MonoBehaviour
 	{
 		HitPoints = StartingHitpoints;
 		Speed = StartingSpeed;
+		Damage = StartingDamage;
+		ShieldPoints = StartingShieldPoints;
 	}
 
 	public void UpgradeHealth()
 	{
-		float cost = HitPoints / DefaultHitpoints * 100;
+		float cost = UpgradeCostHealth();
 		if(cost <= DustKeeper.Dust)
 		{
 			mDustKeeper.SetScore((int)-cost);
@@ -324,18 +356,57 @@ public class PlayerScript : MonoBehaviour
 			UpdateValues();
 		}
 	}
-
-
+		
 	public void UpgradeSpeed()
 	{
-		float cost =  ((Speed + 3 - DefaultSpeed)/3) * 200;
+		float cost = UpgradeCostSpeed();
 		if(cost <= DustKeeper.Dust)
 		{
 			mDustKeeper.SetScore((int)-cost);
-			Speed += 3;
+			Speed += 5;
 			UpdateValues();
 		}
 	}
 
+	public void UpgradeDamage()
+	{
+		float cost = UpgradeCostDamage();
+		if(cost <= DustKeeper.Dust)
+		{
+			mDustKeeper.SetScore((int)-cost);
+			Damage *= 2;
+			UpdateValues();
+		}
+	}
 
+	public void UpgradeShield()
+	{
+		float cost = UpgradeCostShield();
+		if(cost <= DustKeeper.Dust)
+		{
+			mDustKeeper.SetScore((int)-cost);
+			ShieldPoints *= 2;
+			UpdateValues();
+		}
+	}
+
+	private float UpgradeCostHealth()
+	{
+		return HitPoints / DefaultHitpoints * 100;
+	}
+
+	private float UpgradeCostDamage()
+	{
+		return Damage / DefaultDamage * 100;
+	}
+
+	private float UpgradeCostSpeed()
+	{
+		return ((Speed + 5 - DefaultSpeed)/5) * 200;
+	}
+
+	private float UpgradeCostShield()
+	{
+		return ShieldPoints / DefaultShieldPoints * 100;
+	}
 }

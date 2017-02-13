@@ -48,7 +48,8 @@ public class EnemyScript : MonoBehaviour
 	[SerializeField]
 	public float[] ItemDropProbabilities; 
 
-
+	[SerializeField]
+	public float Damage;
 
 	// private
 	public bool MovingRight = true;
@@ -94,6 +95,8 @@ public class EnemyScript : MonoBehaviour
 	{
 		GameObject projectile = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
 
+		projectile.GetComponent<Projectile>().SetDamage(Damage);
+
 		if(AimedShot)
 		{
 			Vector3 targetPosition = GameObject.Find(StringConstants.GOPlayer).transform.position;
@@ -104,6 +107,8 @@ public class EnemyScript : MonoBehaviour
 		{
 			projectile.GetComponent<Rigidbody2D>().velocity = Vector3.down * ProjectileSpeed;
 		}
+
+
 
 		AudioSource.PlayClipAtPoint(FireSound, transform.position);
 	}
