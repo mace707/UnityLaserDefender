@@ -18,4 +18,7 @@ public class StringConstants : MonoBehaviour
 	public const string TEXTScore = "Score";
 
 	public const string GOPlayer = "Player";
+
+	public const string MENUPause = "PauseMenu";
+	public const string MENUCustomize = "CustomizeMenu";
 }

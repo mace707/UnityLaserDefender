@@ -69,6 +69,8 @@ public class EnemyScript : MonoBehaviour
 
 	SpawnCounter mSpawnCounter;
 
+	public bool BossRound = false;
+
 	void Start()
 	{
 		mScoreKeeper = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreKeeper>();
@@ -124,7 +126,8 @@ public class EnemyScript : MonoBehaviour
 	// We need this in a fixed update otherwise some game objects jump randomly.
 	void FixedUpdate()
 	{
-		HandleMovement();
+		if (!BossRound)
+			HandleMovement();
 	}
 
 	void HandleMovement()

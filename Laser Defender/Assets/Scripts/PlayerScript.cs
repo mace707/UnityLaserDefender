@@ -60,9 +60,13 @@ public class PlayerScript : MonoBehaviour
 	private float DefaultShieldPoints = 100;
 	private float StartingShieldPoints = 100;
 
+	public GameObject MenuHandlerGO;
+	private InGameMenuHandler MenuHandler;
+
 	// Use this for initialization
 	void Start () 
 	{
+		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
 		StartingDamage = PlayerPrefs.GetFloat(StringConstants.PPDamage, DefaultDamage);
 		Damage = StartingDamage;
 
@@ -285,11 +289,9 @@ public class PlayerScript : MonoBehaviour
 
 	public void CustomizeShip()
 	{
+		MenuHandler.ActivatePlayerCustomizationMenu();
 		Time.timeScale = 1;
-		CustomizeCanvas.gameObject.SetActive(true);
-
 		ResetValues();
-
 		Invoke("UpdateValues", 0.000001f);
 	}
 
@@ -313,7 +315,7 @@ public class PlayerScript : MonoBehaviour
 	public void CustomizeShipCanceled()
 	{
 		ResetValues();
-		CustomizeCanvas.gameObject.SetActive(false);
+		MenuHandler.ActivatePauseMenu();
 	}
 
 	public void AcceptShipUpgrades()
@@ -334,8 +336,7 @@ public class PlayerScript : MonoBehaviour
 
 		UpdateHealthBar();
 		UpdateShieldPointBar();
-
-		CustomizeCanvas.gameObject.SetActive(false);
+		MenuHandler.ActivatePauseMenu();
 	}
 
 	public void ResetValues()
