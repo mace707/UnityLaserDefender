@@ -14,11 +14,11 @@ public class Asteroid : MonoBehaviour
 	[SerializeField]
 	public int DustValue; // The currency name is "Dust"
 
-	private DustKeeper mDustKeeper;
+	private DustText mDustText;
 
 	void Start()
 	{
-		mDustKeeper = GameObject.Find(StringConstants.PPDust).GetComponent<DustKeeper>();
+		mDustText = GameObject.Find(StringConstants.PPDust).GetComponent<DustText>();
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
@@ -36,7 +36,7 @@ public class Asteroid : MonoBehaviour
 	void Die()
 	{
 		Instantiate(Explosion, this.transform.position, Quaternion.identity);
-		mDustKeeper.SetScore(DustValue);
+		mDustText.SetScore(DustValue);
 		Destroy(gameObject);
 	}
 

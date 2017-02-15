@@ -1,135 +1,165 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemySpawner : MonoBehaviour 
 {
-	[SerializeField]
-	public GameObject[] EnemyPrefabs;
+	public int FactionSpawnIndex;
+	public int EnemySpawnIndex;
 
-	[SerializeField]
-	public GameObject[] BossPrefabs;
+	private Enemy Enemy;
+	private GameObject EnemyGO;
 
-	public FactionManager Factions;
+	private int EnemySpawnCountMax;
+	private int EnemySpawnCount;
 
-	[SerializeField]
-	public float Width = 10f;
-	[SerializeField]
-	public float Height = 5f;
+	private Vector3 TopLeft;
+	private Vector3 TopRight;
+	private Vector3 EnemySpawnPosition;
 
-	public float SpawnDelay = 0.5f;
+	private bool EnemySpawningActive;
 
-	private bool MovingRight = true;
+	public Transform PauseCanvas;
 
-	public int TempFactionEnemyIndex = 0;
-	public int TempFactionIndex = 0;
+	private bool EnemySpawnBothSides;
 
-	float XMin = -5;
-	float XMax = 5;
+	private bool StartSpawningNextWave;
 
-	[SerializeField]
-	float Speed = 5.0f;
+	public Player Player;
 
-	int EnemyFormationIndex = 0;
+	EnemyCountText mSpawnCounter;
+
+	public GameObject MenuHandlerGO;
+	private InGameMenuHandler MenuHandler;
+
+	public GameObject[] Factions;
 
 	// Use this for initialization
 	void Start () 
 	{
-		SpawnUntilFull();
 		//Distance between the camera and the object.
-		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
-		XMin = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x ;
-		XMax = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distanceToCamera)).x;
-	}
-
-	void SpawnBoss()
-	{
-		Transform freePosition = NextFreePosition();
-		GameObject enemy = (GameObject)Instantiate(BossPrefabs[0], freePosition.position, Quaternion.identity);
-		enemy.transform.SetParent(freePosition);
-	}
-
-	void SpawnUntilFull()
-	{
-		Transform freePosition = NextFreePosition();
-		if(freePosition)
-		{
-			if(TempFactionIndex < Factions.Factions.Length)
-			{
-				Transform factionTransform = Factions.Factions[TempFactionIndex].transform;
-
-				if(TempFactionEnemyIndex < factionTransform.GetChild(0).childCount)
-				{
-					GameObject enemy =	factionTransform.GetChild(0).GetChild(TempFactionEnemyIndex).gameObject;
-					GameObject spawnedEnemy = (GameObject)Instantiate(enemy, freePosition.position, Quaternion.identity);
-					spawnedEnemy.transform.SetParent(freePosition);
-				}
-			}
-		}
-		if (NextFreePosition())
-			Invoke("SpawnUntilFull", SpawnDelay);
-	}
-
-	public void OnDrawGizmos()
-	{
-		Gizmos.DrawWireCube(transform.position, new Vector3(Width, Height));
+		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
+		StartSpawningNextWave = true;
+		EnemySpawningActive = false;
+		EnemySpawnBothSides = false;
+		EnemySpawnIndex = -1;
+		FactionSpawnIndex = 0;
+		EnemySpawnCountMax = 0;
+		EnemySpawnCount = 0;
+		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
+		ScreenSetup();
 	}
 
 	// Update is called once per frame
-	void Update () 
+	void Update ()
 	{
-		HandleMovement();
-		SpawnNextEnemies();
-	}
-
-	void HandleMovement()
-	{
-		if (MovingRight) transform.position += Vector3.right * Speed * Time.deltaTime;
-		else transform.position += Vector3.left * Speed * Time.deltaTime;
-
-		if (transform.position.x < XMin + Width / 2) MovingRight = true;
-		else if (transform.position.x > XMax - Width / 2) MovingRight = false;
-	}
-
-	Transform NextFreePosition()
-	{
-		foreach(Transform childPositionGameObj in transform.GetChild(EnemyFormationIndex).transform)
+		if(StartSpawningNextWave)
 		{
-			if(childPositionGameObj.childCount == 0)
-				return childPositionGameObj;
+			StartSpawningNextWave = false;
+			PreSpawnEnemy();
+			InvokeRepeating("SpawnEnemy", 1, 1);
+			Invoke("BeginSpawnTracker", 1.5f);
 		}
-		return null;
-	}
 
-	bool AllMemeberDead()
-	{
-		foreach(Transform childPositionGameObj in transform.GetChild(EnemyFormationIndex).transform)
+		if(EnemySpawningActive && transform.childCount == 0)
 		{
-			if(childPositionGameObj.childCount > 0)
-				return false;
+			EnemySpawningActive = false;
+			Invoke("PostSpawnEnemy", 5);
 		}
-		return true;
 	}
 
-	void SpawnNextEnemies()
+	void PreSpawnEnemy()
 	{
-		if(AllMemeberDead())
+		EnemySpawnIndex++;
+
+		if(EnemySpawnIndex > 3)
 		{
-			TempFactionEnemyIndex += 1;
+			EnemySpawnIndex = 0;
+			FactionSpawnIndex++;
+		}
 
-			EnemyFormationIndex = Random.Range(0, transform.childCount - 1);
+		EnemyGO = Factions[FactionSpawnIndex].transform.GetChild(EnemySpawnIndex).gameObject;
+		Enemy = EnemyGO.GetComponent<Enemy>();
 
-			if(TempFactionEnemyIndex == 4)
+		EnemySpawnCountMax = Enemy.SpawnCount;
+		EnemySpawnCount = 0;
+
+		mSpawnCounter.SetMax(EnemySpawnCountMax);
+
+		switch(Enemy.Path)
+		{
+		case Enemy.TravelPath.LeftToCenter:
+		case Enemy.TravelPath.LeftToRight:
+			EnemySpawnPosition = TopLeft;
+			EnemySpawnBothSides = false;
+			break;
+		case Enemy.TravelPath.RightToCenter:
+		case Enemy.TravelPath.RightToLeft:
+			EnemySpawnPosition = TopRight;
+			EnemySpawnBothSides = false;
+			break;
+		case Enemy.TravelPath.SidesToCenter:
+			EnemySpawnBothSides = true;
+			break;
+		}
+	}
+
+	void SpawnEnemy()
+	{
+		if(EnemySpawnCount < EnemySpawnCountMax)
+		{
+			if(!EnemySpawnBothSides)
 			{
-				TempFactionEnemyIndex = 0;
-				TempFactionIndex += 1;
-				SpawnUntilFull();
+				GameObject enemyGO = (GameObject)Instantiate(EnemyGO, EnemySpawnPosition, Quaternion.identity);
+				enemyGO.transform.SetParent(this.transform);
+				EnemySpawnCount++;
 			}
 			else
 			{
-				SpawnUntilFull();
+				GameObject enemyGOLeft = (GameObject)Instantiate(EnemyGO, TopLeft, Quaternion.identity);
+				GameObject enemyGORight = (GameObject)Instantiate(EnemyGO, TopRight, Quaternion.identity);
+
+				Enemy esl = enemyGOLeft.GetComponent<Enemy>();
+				Enemy esr = enemyGORight.GetComponent<Enemy>();
+
+				esl.Path = Enemy.TravelPath.LeftToCenter;
+				esr.Path = Enemy.TravelPath.RightToCenter;
+
+				enemyGOLeft.transform.SetParent(this.transform);
+				enemyGORight.transform.SetParent(this.transform);
+
+				EnemySpawnCount += 2;
 			}
-
-
 		}
+	}
+
+	void PostSpawnEnemy()
+	{
+		MenuHandler.ActivatePauseMenu();
+		CancelInvoke ("SpawnEnemy");
+	}
+
+	private void ScreenSetup()
+	{
+		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
+		TopLeft = Camera.main.ViewportToWorldPoint (new Vector3 (0, 1, distanceToCamera));
+		TopRight = Camera.main.ViewportToWorldPoint (new Vector3 (1, 1, distanceToCamera));
+		TopLeft += new Vector3(1, -2, 0);
+		TopRight += new Vector3(-1, -2, 0);
+	}
+
+	private void BeginSpawnTracker()
+	{
+		EnemySpawningActive = true;
+	}
+
+	public void SetStartSpawningNextWave()
+	{
+		Player.ResetValues();
+		Player.UpdateHealthBar();
+		Player.UpdateShieldPointBar();
+		MenuHandler.DeactivatePauseMenu();
+		StartSpawningNextWave = true;
 	}
 }
