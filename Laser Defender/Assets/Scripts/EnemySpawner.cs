@@ -42,6 +42,8 @@ public class EnemySpawner : MonoBehaviour
 
 	private Transform BossFormationTransform;
 
+	public GameObject CountDownToBossRound;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -51,7 +53,7 @@ public class EnemySpawner : MonoBehaviour
 		EnemySpawningActive = false;
 		EnemySpawnBothSides = false;
 		//EnemySpawnIndex = -1;
-		FactionSpawnIndex = 0;
+		//FactionSpawnIndex = 0;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
 		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
@@ -210,7 +212,10 @@ public class EnemySpawner : MonoBehaviour
 		if(NextFreePosition())
 			Invoke("SpawnBossUntilFull", 1);
 		else
+		{
 			Invoke("BossRoundReady", 3);
+			CountDownToBossRound.SetActive(true);
+		}
 	}
 
 	void BossRoundReady()
@@ -219,6 +224,7 @@ public class EnemySpawner : MonoBehaviour
 			SpawnedBosses[i].Invincible = false;
 
 		ActiveFormation.FreezeAll = false;
+		CountDownToBossRound.GetComponent<CountDownText>().StartCounter();
 	}
 
 	private Transform NextFreePosition()
@@ -229,5 +235,21 @@ public class EnemySpawner : MonoBehaviour
 				return child;
 		}
 		return null;
+	}
+
+	public void ShowWaitText()
+	{
+		CountDownToBossRound.SetActive(true);
+		CountDownToBossRound.GetComponent<Text>().text = "WAIT";
+	}
+
+	private void UpdateWaitText()
+	{
+		
+	}
+
+	public void ShowCountDownText()
+	{
+		
 	}
 }
