@@ -63,6 +63,8 @@ public class Player : MonoBehaviour
 	public GameObject MenuHandlerGO;
 	private InGameMenuHandler MenuHandler;
 
+	public bool FreezePlayer = false;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -120,19 +122,21 @@ public class Player : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		HandleKeyPress();
-		// Restrict the player to the game space.
-		float newX = Mathf.Clamp(transform.position.x, XMin, XMax);
-		transform.position = new Vector3 (newX, transform.position.y, transform.position.z);
-		if(ActiveShield)
+		if(!FreezePlayer)
 		{
-			ActiveShield.transform.position = transform.position;
-		} 
-		else
-		{
-			CancelInvoke ("DepleteShield");
-		}
-			
+			HandleKeyPress();
+			// Restrict the player to the game space.
+			float newX = Mathf.Clamp(transform.position.x, XMin, XMax);
+			transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+			if(ActiveShield)
+			{
+				ActiveShield.transform.position = transform.position;
+			}
+			else
+			{
+				CancelInvoke("DepleteShield");
+			}
+		}	
 	}
 
 	void HandleKeyPress()

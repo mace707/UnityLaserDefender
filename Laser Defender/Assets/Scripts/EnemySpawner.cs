@@ -44,11 +44,18 @@ public class EnemySpawner : MonoBehaviour
 
 	public GameObject CountDownToBossRound;
 
+	public GameObject BossRoundCountDown;
+
+	private int Timer = 0;
+
+	private Text CountDownTimerText;
+
 	// Use this for initialization
 	void Start () 
 	{
 		//Distance between the camera and the object.
 		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
+
 		StartSpawningNextWave = true;
 		EnemySpawningActive = false;
 		EnemySpawnBothSides = false;
@@ -189,6 +196,7 @@ public class EnemySpawner : MonoBehaviour
 
 	private void StartSpawningBosses()
 	{
+		BossRoundCountDown.SetActive(true);
 		SpawnedBosses = new List<Enemy>();
 		BossFormationTransform = BossFormations.transform.GetChild(FactionSpawnIndex).transform;
 		ActiveFormation = BossFormations.transform.GetChild(FactionSpawnIndex).GetComponent<BossFormation>();
@@ -204,6 +212,7 @@ public class EnemySpawner : MonoBehaviour
 			GameObject enemyGO = (GameObject)Instantiate(EnemyGO, EnemySpawnPosition, Quaternion.identity);
 			Enemy enemy = enemyGO.GetComponent<Enemy>();
 			enemy.Invincible = true;
+			Player.FreezePlayer = true;
 			SpawnedBosses.Add(enemy);
 			enemyGO.transform.SetParent(freePosition);
 			EnemySpawnCount++;
@@ -212,19 +221,30 @@ public class EnemySpawner : MonoBehaviour
 		if(NextFreePosition())
 			Invoke("SpawnBossUntilFull", 1);
 		else
-		{
-			Invoke("BossRoundReady", 3);
-			CountDownToBossRound.SetActive(true);
-		}
+			Invoke("StartTimer", 3);
 	}
 
-	void BossRoundReady()
+	void StartTimer()
 	{
-		for(int i = 0; i < SpawnedBosses.Count; i++)
-			SpawnedBosses[i].Invincible = false;
+		CountDownTimerText = CountDownToBossRound.GetComponent<Text>();
+		Timer = 3;
+		CountDownTimerText.text = Timer.ToString();
+		InvokeRepeating("UpdateTimer", 1, 1);
+	}
 
-		ActiveFormation.FreezeAll = false;
-		CountDownToBossRound.GetComponent<CountDownText>().StartCounter();
+	public void UpdateTimer()
+	{
+		Timer--;
+		if(Timer <= 0)
+		{
+			BossRoundCountDown.SetActive(false);
+			CancelInvoke("UpdateCounter");
+			ActiveFormation.FreezeAll = false;
+			Player.FreezePlayer = false;
+			for(int i = 0; i < SpawnedBosses.Count; i++)
+				SpawnedBosses[i].Invincible = false;
+		}
+		CountDownTimerText.text = Timer.ToString();
 	}
 
 	private Transform NextFreePosition()
@@ -235,21 +255,5 @@ public class EnemySpawner : MonoBehaviour
 				return child;
 		}
 		return null;
-	}
-
-	public void ShowWaitText()
-	{
-		CountDownToBossRound.SetActive(true);
-		CountDownToBossRound.GetComponent<Text>().text = "WAIT";
-	}
-
-	private void UpdateWaitText()
-	{
-		
-	}
-
-	public void ShowCountDownText()
-	{
-		
 	}
 }
