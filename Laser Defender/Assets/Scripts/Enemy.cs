@@ -62,11 +62,13 @@ public class Enemy : MonoBehaviour
 
 	EnemyCountText mEnemyCountText;
 
-	public bool BossRound = false;
+	public bool IsBoss = false;
 
 	public GameObject Projectile;
 
 	public bool AimedShot = false;
+
+	public bool Invincible = false;
 
 	void Start()
 	{
@@ -92,6 +94,9 @@ public class Enemy : MonoBehaviour
 
 	void FireProjectile()
 	{
+		if(Invincible)
+			return;
+		
 		GameObject projectile = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
 
 		projectile.GetComponent<Projectile>().SetDamage(Damage);
@@ -123,7 +128,7 @@ public class Enemy : MonoBehaviour
 	// We need this in a fixed update otherwise some game objects jump randomly.
 	void FixedUpdate()
 	{
-		if (!BossRound)
+		if (!IsBoss)
 			HandleMovement();
 	}
 
@@ -204,7 +209,7 @@ public class Enemy : MonoBehaviour
 	void HandleCollision(Collider2D col)
 	{
 		Projectile laser = col.gameObject.GetComponent<Projectile> ();
-		if(laser)
+		if(laser && !Invincible)
 		{
 			laser.Hit();
 			Health -= laser.GetDamage();

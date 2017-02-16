@@ -35,6 +35,13 @@ public class EnemySpawner : MonoBehaviour
 
 	public GameObject[] Factions;
 
+	bool BossRound = false;
+
+	[SerializeField]
+	GameObject BossFormations;
+
+	private Transform BossFormationTransform;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -43,7 +50,7 @@ public class EnemySpawner : MonoBehaviour
 		StartSpawningNextWave = true;
 		EnemySpawningActive = false;
 		EnemySpawnBothSides = false;
-		EnemySpawnIndex = -1;
+		//EnemySpawnIndex = -1;
 		FactionSpawnIndex = 0;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
@@ -58,8 +65,11 @@ public class EnemySpawner : MonoBehaviour
 		{
 			StartSpawningNextWave = false;
 			PreSpawnEnemy();
-			InvokeRepeating("SpawnEnemy", 1, 1);
-			Invoke("BeginSpawnTracker", 1.5f);
+			if(!BossRound)
+			{
+				InvokeRepeating("SpawnEnemy", 1, 1);
+				Invoke("BeginSpawnTracker", 1.5f);
+			}
 		}
 
 		if(EnemySpawningActive && transform.childCount == 0)
@@ -82,26 +92,35 @@ public class EnemySpawner : MonoBehaviour
 		EnemyGO = Factions[FactionSpawnIndex].transform.GetChild(EnemySpawnIndex).gameObject;
 		Enemy = EnemyGO.GetComponent<Enemy>();
 
-		EnemySpawnCountMax = Enemy.SpawnCount;
-		EnemySpawnCount = 0;
+		BossRound = Enemy.IsBoss;
 
-		mSpawnCounter.SetMax(EnemySpawnCountMax);
-
-		switch(Enemy.Path)
+		if(!BossRound)
 		{
-		case Enemy.TravelPath.LeftToCenter:
-		case Enemy.TravelPath.LeftToRight:
-			EnemySpawnPosition = TopLeft;
-			EnemySpawnBothSides = false;
-			break;
-		case Enemy.TravelPath.RightToCenter:
-		case Enemy.TravelPath.RightToLeft:
-			EnemySpawnPosition = TopRight;
-			EnemySpawnBothSides = false;
-			break;
-		case Enemy.TravelPath.SidesToCenter:
-			EnemySpawnBothSides = true;
-			break;
+			EnemySpawnCountMax = Enemy.SpawnCount;
+			EnemySpawnCount = 0;
+
+			mSpawnCounter.SetMax(EnemySpawnCountMax);
+
+			switch(Enemy.Path)
+			{
+			case Enemy.TravelPath.LeftToCenter:
+			case Enemy.TravelPath.LeftToRight:
+				EnemySpawnPosition = TopLeft;
+				EnemySpawnBothSides = false;
+				break;
+			case Enemy.TravelPath.RightToCenter:
+			case Enemy.TravelPath.RightToLeft:
+				EnemySpawnPosition = TopRight;
+				EnemySpawnBothSides = false;
+				break;
+			case Enemy.TravelPath.SidesToCenter:
+				EnemySpawnBothSides = true;
+				break;
+			}
+		}
+		else
+		{
+			StartSpawningBosses();
 		}
 	}
 
@@ -161,5 +180,54 @@ public class EnemySpawner : MonoBehaviour
 		Player.UpdateShieldPointBar();
 		MenuHandler.DeactivatePauseMenu();
 		StartSpawningNextWave = true;
+	}
+
+	private List<Enemy> SpawnedBosses;
+	private BossFormation ActiveFormation;
+
+	private void StartSpawningBosses()
+	{
+		SpawnedBosses = new List<Enemy>();
+		BossFormationTransform = BossFormations.transform.GetChild(FactionSpawnIndex).transform;
+		ActiveFormation = BossFormations.transform.GetChild(FactionSpawnIndex).GetComponent<BossFormation>();
+		SpawnBossUntilFull();
+	}
+
+	private void SpawnBossUntilFull()
+	{
+		Transform freePosition = NextFreePosition();
+
+		if(freePosition)
+		{
+			GameObject enemyGO = (GameObject)Instantiate(EnemyGO, EnemySpawnPosition, Quaternion.identity);
+			Enemy enemy = enemyGO.GetComponent<Enemy>();
+			enemy.Invincible = true;
+			SpawnedBosses.Add(enemy);
+			enemyGO.transform.SetParent(freePosition);
+			EnemySpawnCount++;
+		}
+
+		if(NextFreePosition())
+			Invoke("SpawnBossUntilFull", 1);
+		else
+			Invoke("BossRoundReady", 3);
+	}
+
+	void BossRoundReady()
+	{
+		for(int i = 0; i < SpawnedBosses.Count; i++)
+			SpawnedBosses[i].Invincible = false;
+
+		ActiveFormation.FreezeAll = false;
+	}
+
+	private Transform NextFreePosition()
+	{
+		foreach(Transform child in BossFormationTransform)
+		{
+			if(child.childCount == 0)
+				return child;
+		}
+		return null;
 	}
 }
