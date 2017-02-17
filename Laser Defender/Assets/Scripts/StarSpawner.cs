@@ -22,6 +22,9 @@ public class StarSpawner : MonoBehaviour
 
 	void Update()
 	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
 		if (MovingRight) transform.position += Vector3.right * 5 * Time.deltaTime;
 		else transform.position += Vector3.left * 5 * Time.deltaTime;
 

@@ -15,6 +15,9 @@ public class PlanetSpawner : MonoBehaviour
 
 	void Update()
 	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
 		CheckForPlanets();
 	}
 

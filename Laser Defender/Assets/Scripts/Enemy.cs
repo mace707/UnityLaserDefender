@@ -94,9 +94,6 @@ public class Enemy : MonoBehaviour
 
 	void FireProjectile()
 	{
-		if(Invincible)
-			return;
-		
 		GameObject projectile = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
 
 		projectile.GetComponent<Projectile>().SetDamage(Damage);
@@ -120,6 +117,9 @@ public class Enemy : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
 		float probability = ShotsPerSecond * Time.deltaTime;
 		if(Random.value < probability)
 			FireProjectile();
@@ -128,6 +128,9 @@ public class Enemy : MonoBehaviour
 	// We need this in a fixed update otherwise some game objects jump randomly.
 	void FixedUpdate()
 	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
 		if (!IsBoss)
 			HandleMovement();
 	}

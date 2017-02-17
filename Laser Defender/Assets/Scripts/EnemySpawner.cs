@@ -55,7 +55,6 @@ public class EnemySpawner : MonoBehaviour
 	{
 		//Distance between the camera and the object.
 		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
-
 		StartSpawningNextWave = true;
 		EnemySpawningActive = false;
 		EnemySpawnBothSides = false;
@@ -70,6 +69,9 @@ public class EnemySpawner : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
 		if(StartSpawningNextWave)
 		{
 			StartSpawningNextWave = false;
@@ -191,15 +193,12 @@ public class EnemySpawner : MonoBehaviour
 		StartSpawningNextWave = true;
 	}
 
-	private List<Enemy> SpawnedBosses;
-	private BossFormation ActiveFormation;
 
 	private void StartSpawningBosses()
 	{
+		GlobalConstants.FreezeAllNoTimeScale = true;
 		BossRoundCountDown.SetActive(true);
-		SpawnedBosses = new List<Enemy>();
 		BossFormationTransform = BossFormations.transform.GetChild(FactionSpawnIndex).transform;
-		ActiveFormation = BossFormations.transform.GetChild(FactionSpawnIndex).GetComponent<BossFormation>();
 		SpawnBossUntilFull();
 	}
 
@@ -210,10 +209,6 @@ public class EnemySpawner : MonoBehaviour
 		if(freePosition)
 		{
 			GameObject enemyGO = (GameObject)Instantiate(EnemyGO, EnemySpawnPosition, Quaternion.identity);
-			Enemy enemy = enemyGO.GetComponent<Enemy>();
-			enemy.Invincible = true;
-			Player.FreezePlayer = true;
-			SpawnedBosses.Add(enemy);
 			enemyGO.transform.SetParent(freePosition);
 			EnemySpawnCount++;
 		}
@@ -239,10 +234,7 @@ public class EnemySpawner : MonoBehaviour
 		{
 			BossRoundCountDown.SetActive(false);
 			CancelInvoke("UpdateCounter");
-			ActiveFormation.FreezeAll = false;
-			Player.FreezePlayer = false;
-			for(int i = 0; i < SpawnedBosses.Count; i++)
-				SpawnedBosses[i].Invincible = false;
+			GlobalConstants.FreezeAllNoTimeScale = false;
 		}
 		CountDownTimerText.text = Timer.ToString();
 	}

@@ -9,10 +9,9 @@ public class BossFormation : MonoBehaviour
 	[SerializeField]
 	public float Height = 0;
 
-	public bool FreezeAll = true;
-
-	public bool FreezeX = false;
-	public bool FreezY = false;
+	public bool FreezeMovement = false;
+	public bool FreezeMovementX = false;
+	public bool FreezeMovementY = false;
 
 	private bool MovingRight = false;
 
@@ -35,9 +34,12 @@ public class BossFormation : MonoBehaviour
 
 	void Update()
 	{
-		if (!FreezeAll)
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
+		if (!FreezeMovement)
 		{
-			if(!FreezeX)
+			if(!FreezeMovementX)
 			{
 				if(MovingRight)
 					transform.position += Vector3.right * 5 * Time.deltaTime;
@@ -50,7 +52,7 @@ public class BossFormation : MonoBehaviour
 					MovingRight = false;
 			}
 
-			if(!FreezY)
+			if(!FreezeMovementY)
 			{
 				if(MovingDown)
 					transform.position += Vector3.down * 5 * Time.deltaTime;

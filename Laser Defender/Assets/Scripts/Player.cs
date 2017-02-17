@@ -122,6 +122,9 @@ public class Player : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
 		if(!FreezePlayer)
 		{
 			HandleKeyPress();
