@@ -3,17 +3,6 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour 
 {
-	// Public
-	public enum TravelPath
-	{
-		LeftToRight,
-		RightToLeft,
-		SidesToCenter,
-		LeftToCenter,
-		RightToCenter,
-	}
-	public TravelPath Path;
-
 	public int SpawnCount = 0;
 
 	// Serialized Public
@@ -70,6 +59,10 @@ public class Enemy : MonoBehaviour
 
 	public bool Invincible = false;
 
+	public bool LeftToCenter = false;
+
+	private bool EnteredScene = false;
+
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
@@ -108,9 +101,7 @@ public class Enemy : MonoBehaviour
 		{
 			projectile.GetComponent<Rigidbody2D>().velocity = Vector3.down * ProjectileSpeed;
 		}
-
-
-
+			
 		AudioSource.PlayClipAtPoint(FireSound, transform.position);
 	}
 
@@ -137,29 +128,20 @@ public class Enemy : MonoBehaviour
 
 	void HandleMovement()
 	{
-		switch(Path)
-		{
-		case TravelPath.LeftToRight:
-		case TravelPath.RightToLeft:
-			Move(ScreenMinX, ScreenMaxX);
-			break;
-		case TravelPath.LeftToCenter:
-			Move(ScreenMinX, ScreenMidX);
-			break;
-		case TravelPath.RightToCenter:
-			Move(ScreenMidX, ScreenMaxX);
-			break;
-		case TravelPath.SidesToCenter:
-			break;
-		default:
-			break;
-		}
+		if (LeftToCenter)	Move(ScreenMinX, ScreenMidX);
+		else				Move(ScreenMidX, ScreenMaxX);
 	}
 
 	void Move(float minX, float maxX)
 	{
-		if(!MovingUp && !MovingDown) MoveHorizontal(minX, maxX);
-		else if (MovingDown) MoveDown();
+		if(!EnteredScene)
+		{
+			if(transform.position.x > minX + Width && transform.position.x <  maxX - Width)
+				EnteredScene = true;
+		}
+
+		if(!MovingUp && !MovingDown)			MoveHorizontal(minX, maxX);
+		else if(EnteredScene && MovingDown)		MoveDown();
 	}
 
 	void MoveHorizontal(float xMin, float xMax)
@@ -167,12 +149,14 @@ public class Enemy : MonoBehaviour
 		if(transform.position.x < xMin + Width / 2)
 		{
 			MovingRight = true;
-			MovingDown = true;
+			if(EnteredScene)
+				MovingDown = true;
 		}
 		else if(transform.position.x > xMax - Width / 2)
 		{
 			MovingRight = false;
-			MovingDown = true;
+			if(EnteredScene)
+				MovingDown = true;
 		}
 
 		if(MovingRight)	transform.position += Vector3.right * 2 * Time.deltaTime;

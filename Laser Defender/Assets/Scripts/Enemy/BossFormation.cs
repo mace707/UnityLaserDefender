@@ -13,15 +13,18 @@ public class BossFormation : MonoBehaviour
 	public bool FreezeMovementX = false;
 	public bool FreezeMovementY = false;
 
-	private bool MovingRight = false;
+	public bool MovingRight = false;
 
-	private bool MovingDown = false;
+	public bool MovingDown = false;
 
 	private float XMin = 0;
 	private float XMax = 0;
 
 	private float YMin = 0;
 	private float YMax = 0;
+
+	private Quaternion qForward = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+	private Quaternion qBack = Quaternion.Euler(0.0f, 0.0f, 90f);
 
 	void Start()
 	{
@@ -37,6 +40,7 @@ public class BossFormation : MonoBehaviour
 		if(GlobalConstants.FreezeAllNoTimeScale)
 			return;
 
+		RotateFormation();
 		if (!FreezeMovement)
 		{
 			if(!FreezeMovementX)
@@ -66,8 +70,22 @@ public class BossFormation : MonoBehaviour
 			}
 		}
 	}
+
+	void RotateFormation()
+	{
+		transform.rotation = Quaternion.RotateTowards(transform.rotation, qBack, Time.deltaTime * 20.0f);
+		CounterChildren();
+	}
+
+	private void CounterChildren()
+	{
+		foreach(Transform child in transform)
+			child.rotation = Quaternion.RotateTowards(child.rotation, qForward, Time.deltaTime * 20.0f);
+	}
+
 	void OnDrawGizmos()
 	{
 		Gizmos.DrawWireCube(transform.position, new Vector3(Width, Height));
 	}
 }
+
