@@ -33,25 +33,9 @@ public class Enemy : MonoBehaviour
 	[SerializeField]
 	public float Damage;
 
-	// private
-	public bool MovingRight = true;
-	private bool MovingDown = false;
-	private bool MovingUp = false;
-
-	private float Width = 0;
-	private float Height = 0;
-
 	private ScoreText mScoreText;
 
-	private float ScreenMaxX = 0;
-	private float ScreenMinX = 0;
-	private float ScreenMidX = 0;
-
-	private Vector3 StartVerticalVec = new Vector3(0,0,0);
-
 	EnemyCountText mEnemyCountText;
-
-	public bool IsBoss = false;
 
 	public GameObject Projectile;
 
@@ -59,25 +43,18 @@ public class Enemy : MonoBehaviour
 
 	public bool Invincible = false;
 
-	public bool LeftToCenter = false;
-
-	private bool EnteredScene = false;
-
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		mEnemyCountText = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
+	}
 
-		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
-		ScreenMinX = Camera.main.ViewportToWorldPoint (new Vector3 (0, 0, distanceToCamera)).x;
-		ScreenMaxX = Camera.main.ViewportToWorldPoint (new Vector3 (1, 0, distanceToCamera)).x;
-		ScreenMidX = Camera.main.ViewportToWorldPoint (new Vector3 (0.5f, 0, distanceToCamera)).x;
+	void Update()
+	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
 
-		Width = gameObject.GetComponent<Collider2D>().bounds.size.x;
-		Height = gameObject.GetComponent<Collider2D>().bounds.size.y;
-
-		if(transform.position.x < ScreenMidX)	MovingRight = true;
-		else MovingRight = false;
+		FireProjectile();
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
@@ -87,98 +64,32 @@ public class Enemy : MonoBehaviour
 
 	void FireProjectile()
 	{
-		GameObject projectile = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
-
-		projectile.GetComponent<Projectile>().SetDamage(Damage);
-
-		if(AimedShot)
-		{
-			Vector3 targetPosition = GameObject.Find(StringConstants.GOPlayer).transform.position;
-			Vector3 relativePos = targetPosition - transform.position;
-			projectile.GetComponent<Rigidbody2D>().velocity = relativePos.normalized * ProjectileSpeed;
-		}
-		else
-		{
-			projectile.GetComponent<Rigidbody2D>().velocity = Vector3.down * ProjectileSpeed;
-		}
-			
-		AudioSource.PlayClipAtPoint(FireSound, transform.position);
-	}
-
-	// Update is called once per frame
-	void Update()
-	{
-		if(GlobalConstants.FreezeAllNoTimeScale)
-			return;
-
 		float probability = ShotsPerSecond * Time.deltaTime;
 		if(Random.value < probability)
-			FireProjectile();
-	}
-
-	// We need this in a fixed update otherwise some game objects jump randomly.
-	void FixedUpdate()
-	{
-		if(GlobalConstants.FreezeAllNoTimeScale)
-			return;
-
-		if (!IsBoss)
-			HandleMovement();
-	}
-
-	void HandleMovement()
-	{
-		if (LeftToCenter)	Move(ScreenMinX, ScreenMidX);
-		else				Move(ScreenMidX, ScreenMaxX);
-	}
-
-	void Move(float minX, float maxX)
-	{
-		if(!EnteredScene)
 		{
-			if(transform.position.x > minX + Width && transform.position.x <  maxX - Width)
-				EnteredScene = true;
-		}
+			GameObject projectile = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
+			projectile.GetComponent<Projectile>().SetDamage(Damage);
 
-		if(!MovingUp && !MovingDown)			MoveHorizontal(minX, maxX);
-		else if(EnteredScene && MovingDown)		MoveDown();
-	}
-
-	void MoveHorizontal(float xMin, float xMax)
-	{
-		if(transform.position.x < xMin + Width / 2)
-		{
-			MovingRight = true;
-			if(EnteredScene)
-				MovingDown = true;
-		}
-		else if(transform.position.x > xMax - Width / 2)
-		{
-			MovingRight = false;
-			if(EnteredScene)
-				MovingDown = true;
-		}
-
-		if(MovingRight)	transform.position += Vector3.right * 2 * Time.deltaTime;
-		else			transform.position += Vector3.left * 2 * Time.deltaTime;
-	}
-
-	void MoveDown()
-	{
-		Vector3 vertVal = Vector3.down * Time.deltaTime * 2;
-		transform.position += vertVal;
-		StartVerticalVec += vertVal;
-
-		if(Mathf.Abs(StartVerticalVec.y) >= Height)
-		{
-			StartVerticalVec = new Vector3(0, 0, 0);
-			MovingDown = false;
+			if(AimedShot)
+			{
+				Vector3 targetPosition = GameObject.Find(StringConstants.GOPlayer).transform.position;
+				Vector3 relativePos = targetPosition - transform.position;
+				projectile.GetComponent<Rigidbody2D>().velocity = relativePos.normalized * ProjectileSpeed;
+			}
+			else
+			{
+				projectile.GetComponent<Rigidbody2D>().velocity = Vector3.down * ProjectileSpeed;
+			}
+			
+			AudioSource.PlayClipAtPoint(FireSound, transform.position);
 		}
 	}
 
 	void Die()
 	{
 		mEnemyCountText.ChangeCount();
+		mScoreText.SetScore(Score);
+
 		Instantiate(Explosion, transform.position, Quaternion.identity);
 		int itemDropIndex = Random.Range(0, ItemDrops.Length);
 
@@ -189,7 +100,6 @@ public class Enemy : MonoBehaviour
 		}
 
 		AudioSource.PlayClipAtPoint(DeathSound, transform.position, 50f);
-		mScoreText.SetScore(Score);
 		Destroy(gameObject);
 	}
 

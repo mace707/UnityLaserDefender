@@ -14,12 +14,7 @@ public class EnemySpawner : MonoBehaviour
 	private int EnemySpawnCountMax;
 	private int EnemySpawnCount;
 
-	private Vector3 TopLeft;
-	private Vector3 TopRight;
-
 	private bool EnemySpawningActive;
-
-	public Transform PauseCanvas;
 
 	private bool StartSpawningNextWave;
 
@@ -32,16 +27,14 @@ public class EnemySpawner : MonoBehaviour
 
 	public GameObject[] Factions;
 
-	bool BossRound = false;
-
 	[SerializeField]
-	GameObject BossFormations;
+	GameObject Formations;
 
-	private Transform BossSubFormationTransform;
+	private Transform FormationTransform;
 
-	public GameObject CountDownToBossRound;
+	public GameObject CountDownToRound;
 
-	public GameObject BossRoundCountDown;
+	public GameObject CountDown;
 
 	private int Timer = 0;
 
@@ -54,12 +47,11 @@ public class EnemySpawner : MonoBehaviour
 		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
 		StartSpawningNextWave = true;
 		EnemySpawningActive = false;
-	//	EnemySpawnIndex = -1;
+//		EnemySpawnIndex = -1;
 		FactionSpawnIndex = 0;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
 		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
-		ScreenSetup();
 	}
 
 	// Update is called once per frame
@@ -74,8 +66,6 @@ public class EnemySpawner : MonoBehaviour
 		{
 			StartSpawningNextWave = false;
 			PreSpawnEnemy();
-			if(!BossRound)
-				SpawnEnemies();
 		}
 			
 		if(EnemySpawningActive && transform.childCount == 0 && EnemySpawnCount == EnemySpawnCountMax)
@@ -98,58 +88,18 @@ public class EnemySpawner : MonoBehaviour
 		EnemyGO = Factions[FactionSpawnIndex].transform.GetChild(EnemySpawnIndex).gameObject;
 		Enemy = EnemyGO.GetComponent<Enemy>();
 
-		BossRound = Enemy.IsBoss;
-
 		EnemySpawnCountMax = Enemy.SpawnCount;
 		EnemySpawnCount = 0;
 
 		mSpawnCounter.SetMax(EnemySpawnCountMax);
 
-		if(BossRound)
-		{
-			StartSpawningBosses();
-		}
-	}
+		StartSpawningEnemies();
 
-	void SpawnEnemies()
-	{
-		Vector3 topLeftSpawn = TopLeft;
-		Vector3 topRightSpawn = TopRight;
-		for(int i = 0; i < EnemySpawnCountMax; i += 2)
-		{
-			GameObject enemyGOLeft = (GameObject)Instantiate(EnemyGO, topLeftSpawn, Quaternion.identity);
-			GameObject enemyGORight = (GameObject)Instantiate(EnemyGO, topRightSpawn, Quaternion.identity);
-
-			topLeftSpawn -= new Vector3(enemyGOLeft.GetComponent<Collider2D>().bounds.size.x, 0, 0);
-			topRightSpawn += new Vector3(enemyGORight.GetComponent<Collider2D>().bounds.size.x, 0, 0);
-
-			Enemy esl = enemyGOLeft.GetComponent<Enemy>();
-			Enemy esr = enemyGORight.GetComponent<Enemy>();
-
-			esl.LeftToCenter = true;
-			esr.LeftToCenter = false;
-
-			enemyGOLeft.transform.SetParent(this.transform);
-			enemyGORight.transform.SetParent(this.transform);
-
-			EnemySpawnCount += 2;
-		}
-
-		Invoke("BeginSpawnTracker", 1.5f);
 	}
 
 	void PostSpawnEnemy()
 	{
 		MenuHandler.ActivatePauseMenu();
-	}
-
-	private void ScreenSetup()
-	{
-		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
-		TopLeft = Camera.main.ViewportToWorldPoint (new Vector3 (0, 1, distanceToCamera));
-		TopRight = Camera.main.ViewportToWorldPoint (new Vector3 (1, 1, distanceToCamera));
-		TopLeft += new Vector3(1, -2, 0);
-		TopRight += new Vector3(-1, -2, 0);
 	}
 
 	private void BeginSpawnTracker()
@@ -167,15 +117,15 @@ public class EnemySpawner : MonoBehaviour
 	}
 
 
-	private void StartSpawningBosses()
+	private void StartSpawningEnemies()
 	{
 		GlobalConstants.FreezeAllNoTimeScale = true;
-		BossRoundCountDown.SetActive(true);
-		BossSubFormationTransform = BossFormations.transform.GetChild(FactionSpawnIndex).transform;
-		SpawnBossUntilFull();
+		CountDown.SetActive(true);
+		FormationTransform = Formations.transform.GetChild(0).transform; 
+		SpawnUntilFull();
 	}
 
-	private void SpawnBossUntilFull()
+	private void SpawnUntilFull()
 	{
 		Transform freePosition = NextFreePosition();
 
@@ -187,7 +137,7 @@ public class EnemySpawner : MonoBehaviour
 		}
 
 		if(NextFreePosition())
-			Invoke("SpawnBossUntilFull", 1);
+			Invoke("SpawnUntilFull", 1);
 		else
 		{
 			Invoke("StartTimer", 3);
@@ -197,7 +147,7 @@ public class EnemySpawner : MonoBehaviour
 
 	void StartTimer()
 	{
-		CountDownTimerText = CountDownToBossRound.GetComponent<Text>();
+		CountDownTimerText = CountDownToRound.GetComponent<Text>();
 		Timer = 3;
 		CountDownTimerText.text = Timer.ToString();
 		InvokeRepeating("UpdateTimer", 1, 1);
@@ -208,7 +158,7 @@ public class EnemySpawner : MonoBehaviour
 		Timer--;
 		if(Timer <= 0)
 		{
-			BossRoundCountDown.SetActive(false);
+			CountDown.SetActive(false);
 			CancelInvoke("UpdateCounter");
 			GlobalConstants.FreezeAllNoTimeScale = false;
 		}
@@ -217,7 +167,7 @@ public class EnemySpawner : MonoBehaviour
 
 	private Transform NextFreePosition()
 	{
-		foreach(Transform subFormation in BossSubFormationTransform)
+		foreach(Transform subFormation in FormationTransform)
 		{
 			foreach(Transform child in subFormation)
 			{
@@ -228,9 +178,9 @@ public class EnemySpawner : MonoBehaviour
 		return null;
 	}
 
-	private bool AllBossesDead()
+	private bool AllDeadInFormation()
 	{
-		foreach(Transform subFormation in BossSubFormationTransform)
+		foreach(Transform subFormation in FormationTransform)
 		{
 			foreach(Transform child in subFormation)
 			{

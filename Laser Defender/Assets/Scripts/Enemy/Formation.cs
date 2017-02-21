@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BossFormation : MonoBehaviour 
+public class Formation : MonoBehaviour 
 {
 	[SerializeField]
 	public float Width = 0;
