@@ -8,7 +8,6 @@ public class EnemySpawner : MonoBehaviour
 	public int FactionSpawnIndex;
 	public int EnemySpawnIndex;
 
-	private Enemy Enemy;
 	private GameObject EnemyGO;
 
 	private int EnemySpawnCountMax;
@@ -40,6 +39,7 @@ public class EnemySpawner : MonoBehaviour
 
 	private Text CountDownTimerText;
 
+	public bool DelayBetweenSpawns = false;
 	// Use this for initialization
 	void Start () 
 	{
@@ -47,7 +47,7 @@ public class EnemySpawner : MonoBehaviour
 		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
 		StartSpawningNextWave = true;
 		EnemySpawningActive = false;
-//		EnemySpawnIndex = -1;
+		EnemySpawnIndex = -1;
 		FactionSpawnIndex = 0;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
@@ -68,7 +68,7 @@ public class EnemySpawner : MonoBehaviour
 			PreSpawnEnemy();
 		}
 			
-		if(EnemySpawningActive && transform.childCount == 0 && EnemySpawnCount == EnemySpawnCountMax)
+		if(EnemySpawningActive && mSpawnCounter.Count == 0)
 		{
 			EnemySpawningActive = false;
 			Invoke("PostSpawnEnemy", 5);
@@ -86,9 +86,8 @@ public class EnemySpawner : MonoBehaviour
 		}
 
 		EnemyGO = Factions[FactionSpawnIndex].transform.GetChild(EnemySpawnIndex).gameObject;
-		Enemy = EnemyGO.GetComponent<Enemy>();
 
-		EnemySpawnCountMax = Enemy.SpawnCount;
+		EnemySpawnCountMax = Formations.transform.GetChild(0).GetComponent<FormationParent>().FormationCount;
 		EnemySpawnCount = 0;
 
 		mSpawnCounter.SetMax(EnemySpawnCountMax);
@@ -137,7 +136,12 @@ public class EnemySpawner : MonoBehaviour
 		}
 
 		if(NextFreePosition())
-			Invoke("SpawnUntilFull", 1);
+		{
+			if(DelayBetweenSpawns)
+				Invoke("SpawnUntilFull", 1);
+			else
+				SpawnUntilFull();
+		}
 		else
 		{
 			Invoke("StartTimer", 3);
@@ -178,6 +182,7 @@ public class EnemySpawner : MonoBehaviour
 		return null;
 	}
 
+	// IF All Dead, then reset and Refill the Formation
 	private bool AllDeadInFormation()
 	{
 		foreach(Transform subFormation in FormationTransform)
