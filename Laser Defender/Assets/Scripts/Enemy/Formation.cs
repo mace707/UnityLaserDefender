@@ -40,8 +40,11 @@ public class Formation : MonoBehaviour
 	public bool MaxXIsCenter = false;
 	public bool MinXIsCenter = false;
 
+	private Vector3 StartPos;
+
 	void Start()
 	{
+		StartPos = transform.position;
 		float distanceToCamera = transform.position.z - Camera.main.transform.position.z;
 
 		float maxXVal = MaxXIsCenter ? 0.5f : 1;
@@ -51,6 +54,11 @@ public class Formation : MonoBehaviour
 		XMax = Camera.main.ViewportToWorldPoint(new Vector3(maxXVal, 0, distanceToCamera)).x;
 		YMin = Camera.main.ViewportToWorldPoint(new Vector3(0, 0.35f, distanceToCamera)).y;
 		YMax = Camera.main.ViewportToWorldPoint(new Vector3(0, 1, distanceToCamera)).y;
+	}
+
+	public void ResetPosition()
+	{
+		transform.position = StartPos;
 	}
 
 	void Update()
@@ -108,7 +116,7 @@ public class Formation : MonoBehaviour
 
 	void MoveDown()
 	{
-		Vector3 vertVal = Vector3.down * Time.deltaTime * 2;
+		Vector3 vertVal = Vector3.down * Time.deltaTime * 5;
 		transform.position += vertVal;
 		CurrentYValue += vertVal.y;
 

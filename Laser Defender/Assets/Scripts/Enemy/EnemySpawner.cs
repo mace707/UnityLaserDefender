@@ -13,9 +13,9 @@ public class EnemySpawner : MonoBehaviour
 	private int EnemySpawnCountMax;
 	private int EnemySpawnCount;
 
-	private bool EnemySpawningActive;
+	private bool WaveFullySpawned;
 
-	private bool StartSpawningNextWave;
+	private bool BeginNewRound;
 
 	public Player Player;
 
@@ -40,18 +40,29 @@ public class EnemySpawner : MonoBehaviour
 	private Text CountDownTimerText;
 
 	public bool DelayBetweenSpawns = false;
+
+	private int FormationIndex = -1;
+
 	// Use this for initialization
 	void Start () 
 	{
 		//Distance between the camera and the object.
 		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
-		StartSpawningNextWave = true;
-		EnemySpawningActive = false;
 		EnemySpawnIndex = -1;
 		FactionSpawnIndex = 0;
+		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
+		Reset();
+	}
+
+	void Reset()
+	{
+		BeginNewRound = true;
+		WaveFullySpawned = false;
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
-		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
+		Player.ResetValues();
+		Player.UpdateHealthBar();
+		Player.UpdateShieldPointBar();
 	}
 
 	// Update is called once per frame
@@ -61,23 +72,29 @@ public class EnemySpawner : MonoBehaviour
 		if(GlobalConstants.FreezeAllNoTimeScale)
 			return;
 
-
-		if(StartSpawningNextWave)
-		{
-			StartSpawningNextWave = false;
-			PreSpawnEnemy();
-		}
+		if(BeginNewRound)
+			BeginRound();
 			
-		if(EnemySpawningActive && mSpawnCounter.Count == 0)
-		{
-			EnemySpawningActive = false;
-			Invoke("PostSpawnEnemy", 5);
-		}
+		if(WaveFullySpawned && mSpawnCounter.Count == 0)
+			EndRound();
 	}
 
-	void PreSpawnEnemy()
+	void BeginRound()
+	{
+		GlobalConstants.FreezeAllNoTimeScale = true;
+		BeginNewRound = false;
+		PreSpawn();
+		Spawn();
+		WaveFullySpawned = true;
+		Invoke("StartTimer", 3);
+	}
+
+	void PreSpawn()
 	{
 		EnemySpawnIndex++;
+
+		if (FormationIndex + 1 < Formations.transform.childCount)
+			FormationIndex++;
 
 		if(EnemySpawnIndex > 3)
 		{
@@ -87,50 +104,22 @@ public class EnemySpawner : MonoBehaviour
 
 		EnemyGO = Factions[FactionSpawnIndex].transform.GetChild(EnemySpawnIndex).gameObject;
 
-		EnemySpawnCountMax = Formations.transform.GetChild(0).GetComponent<FormationParent>().FormationCount;
+		EnemySpawnCountMax = Formations.transform.GetChild(FormationIndex).GetComponent<FormationParent>().FormationCount;
 		EnemySpawnCount = 0;
 
 		mSpawnCounter.SetMax(EnemySpawnCountMax);
 
-		StartSpawningEnemies();
-
-	}
-
-	void PostSpawnEnemy()
-	{
-		MenuHandler.ActivatePauseMenu();
-	}
-
-	private void BeginSpawnTracker()
-	{
-		EnemySpawningActive = true;
-	}
-
-	public void SetStartSpawningNextWave()
-	{
-		Player.ResetValues();
-		Player.UpdateHealthBar();
-		Player.UpdateShieldPointBar();
-		MenuHandler.DeactivatePauseMenu();
-		StartSpawningNextWave = true;
-	}
-
-
-	private void StartSpawningEnemies()
-	{
-		GlobalConstants.FreezeAllNoTimeScale = true;
 		CountDown.SetActive(true);
-		FormationTransform = Formations.transform.GetChild(0).transform; 
-		SpawnUntilFull();
+		FormationTransform = Formations.transform.GetChild(FormationIndex).transform;
 	}
 
-	private void SpawnUntilFull()
+	private void Spawn()
 	{
 		Transform freePosition = NextFreePosition();
 
 		if(freePosition)
 		{
-			GameObject enemyGO = (GameObject)Instantiate(EnemyGO, freePosition.position , Quaternion.identity);
+			GameObject enemyGO = (GameObject)Instantiate(EnemyGO, freePosition.position, Quaternion.identity);
 			enemyGO.transform.SetParent(freePosition);
 			EnemySpawnCount++;
 		}
@@ -138,14 +127,9 @@ public class EnemySpawner : MonoBehaviour
 		if(NextFreePosition())
 		{
 			if(DelayBetweenSpawns)
-				Invoke("SpawnUntilFull", 1);
+				Invoke("Spawn", 1);
 			else
-				SpawnUntilFull();
-		}
-		else
-		{
-			Invoke("StartTimer", 3);
-			BeginSpawnTracker();
+				Spawn();
 		}
 	}
 
@@ -162,8 +146,9 @@ public class EnemySpawner : MonoBehaviour
 		Timer--;
 		if(Timer <= 0)
 		{
+			CountDownTimerText.text = "GET READY";
 			CountDown.SetActive(false);
-			CancelInvoke("UpdateCounter");
+			CancelInvoke("UpdateTimer");
 			GlobalConstants.FreezeAllNoTimeScale = false;
 		}
 		CountDownTimerText.text = Timer.ToString();
@@ -173,6 +158,7 @@ public class EnemySpawner : MonoBehaviour
 	{
 		foreach(Transform subFormation in FormationTransform)
 		{
+			subFormation.gameObject.GetComponent<Formation>().ResetPosition();
 			foreach(Transform child in subFormation)
 			{
 				if(child.childCount == 0)
@@ -194,6 +180,26 @@ public class EnemySpawner : MonoBehaviour
 			}
 		}
 		return true;
+	}
+
+	void EndRound()
+	{
+		WaveFullySpawned = false;
+		Invoke("PauseForEnd", 5);
+	}
+
+	void PauseForEnd()
+	{
+		MenuHandler.ActivatePauseMenu();
+		GlobalConstants.FreezeAllNoTimeScale = true;
+	}
+
+	// Menu handle calls
+	public void SetStartSpawningNextWave()
+	{
+		MenuHandler.DeactivatePauseMenu();
+		Reset();
+		GlobalConstants.FreezeAllNoTimeScale = false;
 	}
 
 }

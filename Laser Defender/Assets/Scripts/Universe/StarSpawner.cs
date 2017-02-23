@@ -45,6 +45,9 @@ public class StarSpawner : MonoBehaviour
 
 	void SpawnStar()
 	{
+		if(GlobalConstants.FreezeAllNoTimeScale)
+			return;
+
 		float probability = 0.3f;
 		if(Random.value < probability)
 		{

@@ -271,7 +271,6 @@ public class Player : MonoBehaviour
 	public void CustomizeShip()
 	{
 		MenuHandler.ActivatePlayerCustomizationMenu();
-		Time.timeScale = 1;
 		ResetValues();
 		Invoke("UpdateValues", 0.000001f);
 	}
@@ -289,8 +288,6 @@ public class Player : MonoBehaviour
 		mPropertyKeeperDamageCost.GetComponent<Text>().text 		= UpgradeCostDamage().ToString() + "$";
 		mPropertyKeeperShieldCost.GetComponent<Text>().text 		= UpgradeCostShield().ToString() + "$";
 		mPropertyKeeperProjectilesCost.GetComponent<Text>().text 	= "NA";
-
-		Time.timeScale = 0;
 	}
 
 	public void CustomizeShipCanceled()
