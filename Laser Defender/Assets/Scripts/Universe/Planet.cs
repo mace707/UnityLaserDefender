@@ -12,8 +12,6 @@ public class Planet : MonoBehaviour
 	{
 		float value = Random.value;
 		RotateDir = value <= 0.5 ? -1 : 1;
-		Debug.Log(value);
-		Debug.Log(RotateDir);
 		RotateSpeed = Random.Range(5, 10);
 	}
 	

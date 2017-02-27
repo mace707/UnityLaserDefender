@@ -5,8 +5,14 @@ public class Projectile : MonoBehaviour
 {
 	public float Damage = 100f;
 
-	public bool IsIceProjectile = false;
-	public bool IsExplodingProjectile = false;
+	public enum DamageType
+	{
+		DamageTypeStandard,
+		DamageTypeFrost,
+		DamageTypeExplosion,
+	}
+
+	public DamageType ProjectileDamageType;
 
 	public float SlowDownFactor = 1;
 
@@ -24,7 +30,7 @@ public class Projectile : MonoBehaviour
 
 	public void Hit()
 	{
-		if(IsExplodingProjectile)
+		if(ProjectileDamageType == DamageType.DamageTypeExplosion)
 			Instantiate(ExplodingProjectile, transform.position, Quaternion.identity);
 
 		Destroy(gameObject);

@@ -175,9 +175,9 @@ public class Player : MonoBehaviour
 
 		if(laser)
 		{
-			if(laser.IsIceProjectile)
+			if(laser.ProjectileDamageType == Projectile.DamageType.DamageTypeFrost)
 				SlowDownPlayer(laser.SlowDownFactor);
-			else if(laser.IsExplodingProjectile)
+			else if(laser.ProjectileDamageType == Projectile.DamageType.DamageTypeExplosion)
 				PostExplosionShift(laser.transform.position);
 
 			laser.Hit();

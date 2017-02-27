@@ -8,7 +8,6 @@ public class ScoreDisplay : MonoBehaviour {
 	// End Game Display
 	void Start () 
 	{
-		Debug.Log("Log");
 		Text mText = GetComponent<Text>();
 		mText.text = "SCORE: " + ScoreText.Score.ToString();
 		ScoreText.Reset();

@@ -48,7 +48,7 @@ public class EnemySpawner : MonoBehaviour
 	{
 		//Distance between the camera and the object.
 		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
-		EnemySpawnIndex = -1;
+		//EnemySpawnIndex = -1;
 		FactionSpawnIndex = 0;
 		mSpawnCounter = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
 		Reset();
@@ -191,6 +191,44 @@ public class EnemySpawner : MonoBehaviour
 	void PauseForEnd()
 	{
 		MenuHandler.ActivatePauseMenu();
+
+		bool factionChange = EnemySpawnIndex == 3;
+
+		int nextIndex = EnemySpawnIndex + 1;
+		int nextFaction = FactionSpawnIndex;
+
+		if(factionChange)
+		{
+			nextIndex = 0;
+			nextFaction++;
+		}
+
+		GameObject nextEnemyGO = Factions[nextFaction].transform.GetChild(nextIndex).gameObject;
+		Enemy nextEnemy = nextEnemyGO.GetComponent<Enemy>();
+
+		GameObject.Find("NextEnemyHealthTxt").GetComponent<Text>().text 		= nextEnemy.Health.ToString();
+		GameObject.Find("NextEnemyDamageTxt").GetComponent<Text>().text 		= nextEnemy.Damage.ToString();
+		GameObject.Find("NextEnemyBulletSpeedTxt").GetComponent<Text>().text 	= nextEnemy.ProjectileSpeed.ToString();
+		GameObject.Find("NextEnemyMovementSpeedTxt").GetComponent<Text>().text 	= "5";
+		GameObject.Find("NextEnemyImage").GetComponent<Image>().sprite 			= nextEnemyGO.GetComponent<SpriteRenderer>().sprite;
+
+		string damageType = "standard";
+
+		switch(nextEnemy.Projectile.GetComponent<Projectile>().ProjectileDamageType)
+		{
+		case Projectile.DamageType.DamageTypeStandard:
+			damageType = "Standard";
+			break;
+		case Projectile.DamageType.DamageTypeExplosion:
+			damageType = "Exploding";
+			break;
+		case Projectile.DamageType.DamageTypeFrost:
+			damageType = "Frost";
+			break;
+		}
+	
+		GameObject.Find("NextEnemyDamageTypeTxt").GetComponent<Text>().text = damageType;
+
 		GlobalConstants.FreezeAllNoTimeScale = true;
 	}
 
