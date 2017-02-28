@@ -119,7 +119,8 @@ public class EnemySpawner : MonoBehaviour
 
 		if(freePosition)
 		{
-			GameObject enemyGO = (GameObject)Instantiate(EnemyGO, freePosition.position, Quaternion.identity);
+			GameObject go = freePosition.gameObject.GetComponent<FormationPosition>().EnemyToSpawn;
+			GameObject enemyGO = (GameObject)Instantiate(go, freePosition.position, Quaternion.identity);
 			enemyGO.transform.SetParent(freePosition);
 			EnemySpawnCount++;
 		}

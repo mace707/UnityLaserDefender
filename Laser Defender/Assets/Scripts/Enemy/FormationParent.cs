@@ -8,7 +8,8 @@ public class FormationParent : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		
+		foreach(Transform SubFormation in transform)
+			FormationCount += SubFormation.childCount;
 	}
 	
 	// Update is called once per frame
