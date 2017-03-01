@@ -104,10 +104,10 @@ public class EnemySpawner : MonoBehaviour
 
 		EnemyGO = Factions[FactionSpawnIndex].transform.GetChild(EnemySpawnIndex).gameObject;
 
-		EnemySpawnCountMax = Formations.transform.GetChild(FormationIndex).GetComponent<FormationParent>().FormationCount;
-		EnemySpawnCount = 0;
+//		EnemySpawnCountMax = Formations.transform.GetChild(FormationIndex).GetComponent<FormationParent>().FormationCount;
+//		EnemySpawnCount = 0;
 
-		mSpawnCounter.SetMax(EnemySpawnCountMax);
+//		mSpawnCounter.SetMax(EnemySpawnCountMax);
 
 		CountDown.SetActive(true);
 		FormationTransform = Formations.transform.GetChild(FormationIndex).transform;

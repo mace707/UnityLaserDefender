@@ -388,4 +388,12 @@ public class Player : MonoBehaviour
 	{
 		return ShieldPoints / DefaultShieldPoints * 100;
 	}
+
+	public void PrepareDefaults()
+	{
+		Damage = StartingDamage;
+		HitPoints = StartingHitpoints;
+		Speed = StartingSpeed;
+		ShieldPoints = StartingShieldPoints;
+	}
 }

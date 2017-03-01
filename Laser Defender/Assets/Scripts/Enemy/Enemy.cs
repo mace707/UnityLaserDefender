@@ -35,7 +35,7 @@ public class Enemy : MonoBehaviour
 
 	private ScoreText mScoreText;
 
-	EnemyCountText mEnemyCountText;
+	//EnemyCountText mEnemyCountText;
 
 	public GameObject Projectile;
 
@@ -46,7 +46,7 @@ public class Enemy : MonoBehaviour
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
-		mEnemyCountText = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
+	//	mEnemyCountText = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
 	}
 
 	void Update()
@@ -87,7 +87,7 @@ public class Enemy : MonoBehaviour
 
 	void Die()
 	{
-		mEnemyCountText.ChangeCount();
+	//	mEnemyCountText.ChangeCount();
 		mScoreText.SetScore(Score);
 
 		Instantiate(Explosion, transform.position, Quaternion.identity);
