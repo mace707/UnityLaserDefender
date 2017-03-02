@@ -157,5 +157,14 @@ public class Formation : MonoBehaviour
 	{
 		Gizmos.DrawWireCube(transform.position, new Vector3(Width, Height));
 	}
+
+	public List<Enemy> GetUniqueEnemiesInFormation()
+	{
+		List<Enemy> enemyList = new List<Enemy>();
+		foreach(Transform child in transform)
+			enemyList.Add(child.gameObject.GetComponent<FormationPosition>().EnemyToSpawn.GetComponent<Enemy>());
+
+		return enemyList;
+	}
 }
 

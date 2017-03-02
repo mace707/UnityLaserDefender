@@ -4,18 +4,6 @@ using UnityEngine;
 
 public class EnemySpawner_New : MonoBehaviour 
 {
-	// Use this for initialization
-	void Start () 
-	{
-		
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
-		
-	}
-
 	public void SpawnFormation(Transform formation)
 	{
 		Transform freePosition = NextFreePosition(formation);

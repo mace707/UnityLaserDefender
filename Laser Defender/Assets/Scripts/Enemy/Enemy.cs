@@ -43,9 +43,12 @@ public class Enemy : MonoBehaviour
 
 	public bool Invincible = false;
 
+	private LevelHandler ActiveLevelHandler;
+
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
+		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
 	//	mEnemyCountText = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
 	}
 
@@ -98,6 +101,8 @@ public class Enemy : MonoBehaviour
 			GameObject itemDrop = Instantiate(ItemDrops[itemDropIndex], transform.position, Quaternion.identity);
 			itemDrop.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.position.x, -5);
 		}
+
+		ActiveLevelHandler.EnemyKilled();
 
 		AudioSource.PlayClipAtPoint(DeathSound, transform.position, 50f);
 		Destroy(gameObject);
