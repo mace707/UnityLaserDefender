@@ -24,7 +24,6 @@ public class PauseMenuHandler : MonoBehaviour
 		if(gameObject.activeInHierarchy && !AlreadyActivatedByEndOfRound)
 		{
 			AlreadyActivatedByEndOfRound = true;
-			EnemyList = ActiveLevelHandler.GetUniqueEnemiesInLevel();
 		}
 	}
 }

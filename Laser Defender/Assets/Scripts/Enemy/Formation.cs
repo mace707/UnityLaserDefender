@@ -162,7 +162,23 @@ public class Formation : MonoBehaviour
 	{
 		List<Enemy> enemyList = new List<Enemy>();
 		foreach(Transform child in transform)
-			enemyList.Add(child.gameObject.GetComponent<FormationPosition>().EnemyToSpawn.GetComponent<Enemy>());
+		{
+			Enemy e = child.gameObject.GetComponent<FormationPosition>().EnemyToSpawn.GetComponent<Enemy>();
+
+			bool addEnemy = true;
+
+			foreach(Enemy le in enemyList)
+			{
+				if(le == e)
+				{
+					addEnemy = false;
+					break;
+				}
+			}
+
+			if(addEnemy)
+				enemyList.Add(e);
+		}
 
 		return enemyList;
 	}

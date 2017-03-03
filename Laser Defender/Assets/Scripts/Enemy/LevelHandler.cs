@@ -26,6 +26,7 @@ public class LevelHandler : MonoBehaviour
 
 	private InGameMenuHandler_New MenuHandler;
 
+	private bool MenuActive = false;
 	// Use this for initialization
 	void Start () 
 	{
@@ -38,8 +39,11 @@ public class LevelHandler : MonoBehaviour
 
 	void Update()
 	{
-		if(AllEnemiedInLevelKilled())
+		if(AllEnemiedInLevelKilled() && !MenuActive)
+		{
+			MenuActive = true;
 			Invoke("ActivatePauseMenu", 5);
+		}
 	}
 
 	// This will be called via a menu item.
@@ -96,8 +100,12 @@ public class LevelHandler : MonoBehaviour
 	private void ActivatePauseMenu()
 	{
 		GlobalConstants.FreezeAllNoTimeScale = true;
-		MenuHandler.ActivateMenu(InGameMenuHandler_New.MenuItem.MenuItemPause);
-	 	List<Enemy> EnemyList = GetUniqueEnemiesInLevel();
+		MenuHandler.ActivatePauseMenu(GetUniqueEnemiesInLevel());
+	}
+
+	public void DeactivatePauseMenu()
+	{
+		MenuActive = false;
 	}
 
 	public List<Enemy> GetUniqueEnemiesInLevel()
@@ -112,8 +120,22 @@ public class LevelHandler : MonoBehaviour
 			foreach(Transform subformation in formation)
 			{
 				List<Enemy> subEnemyList = subformation.gameObject.GetComponent<Formation>().GetUniqueEnemiesInFormation();
-				for(int i = 0; i < subEnemyList.Count; i++)
-					enemyList.Add(subEnemyList[i]);
+				foreach (Enemy e in subEnemyList)
+				{
+					bool addEnemy = true;
+
+					foreach(Enemy le in enemyList)
+					{
+						if(le == e)
+						{
+							addEnemy = false;
+							break;
+						}
+					}
+
+					if(addEnemy)
+						enemyList.Add(e);
+				}
 			}
 		}
 		return enemyList;
