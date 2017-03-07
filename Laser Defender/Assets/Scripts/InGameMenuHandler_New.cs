@@ -12,7 +12,8 @@ public class InGameMenuHandler_New : MonoBehaviour
 		MenuItemCountDownTimer,
 	};
 	//When adding a new ingame menu, ensure it is in the same position as the corresponding enum.
-	List<GameObject> InGameMenus;
+	[SerializeField]
+	public List<GameObject> InGameMenus;
 
 	// Pause
 	private List<Enemy> NextLevelEnemies;
@@ -26,9 +27,6 @@ public class InGameMenuHandler_New : MonoBehaviour
 	void Start () 
 	{
 		NextLevelEnemyIndex = 0;
-		InGameMenus = new List<GameObject>();
-		foreach(Transform menu in transform)
-			InGameMenus.Add(menu.gameObject);
 	}
 
 	private void ActivateMenu(MenuItem menu)

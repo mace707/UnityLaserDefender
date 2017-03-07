@@ -149,7 +149,7 @@ public class Player : MonoBehaviour
 		if (Input.GetKey (KeyCode.LeftArrow))			transform.position += Vector3.left * Speed * Time.deltaTime;
 		else if (Input.GetKey (KeyCode.RightArrow))		transform.position += Vector3.right * Speed * Time.deltaTime;
 
-		if (Input.GetKeyDown(KeyCode.Space)) 		InvokeRepeating ("FireProjectile", FiringRate, FiringRate);
+		if (Input.GetKeyDown(KeyCode.Space)) 		InvokeRepeating ("FireProjectile", 0, FiringRate);
 		if (Input.GetKeyUp (KeyCode.Space))			CancelInvoke ("FireProjectile");
 
 		if(Input.GetKeyDown(KeyCode.LeftShift))

@@ -22,7 +22,7 @@ public class LevelHandler : MonoBehaviour
 	private int EnemiesAliveInLevel;
 
 	[SerializeField]
-	GameObject MenuHandlerGO;
+	private GameObject MenuHandlerGO;
 
 	private InGameMenuHandler_New MenuHandler;
 
@@ -34,6 +34,7 @@ public class LevelHandler : MonoBehaviour
 		ActiveLevelIndex = PlayerPrefs.GetInt("Level", 0);
 		AllLevelsGO = GameObject.Find("Levels");
 		EnemySpawner = EnemySpawnerGO.GetComponent<EnemySpawner_New>();
+		MenuHandler.ActivateCoundDownTimer();
 		LoadActiveLevel();
 	}
 
@@ -90,6 +91,8 @@ public class LevelHandler : MonoBehaviour
 	{
 		return EnemiesAliveInLevel <= 0;
 	}
+
+
 
 	// Called when an enemy is killed.
 	public void EnemyKilled()

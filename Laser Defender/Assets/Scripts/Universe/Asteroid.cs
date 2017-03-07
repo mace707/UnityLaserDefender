@@ -33,6 +33,12 @@ public class Asteroid : MonoBehaviour
 		}
 	}
 
+	// Update is called once per frame
+	void Update () 
+	{
+		transform.RotateAround(transform.position, new Vector3(0, 0, 1), Time.deltaTime * 50);
+	}
+
 	void Die()
 	{
 		Instantiate(Explosion, this.transform.position, Quaternion.identity);
