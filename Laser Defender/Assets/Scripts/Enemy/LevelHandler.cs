@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,6 +41,7 @@ public class LevelHandler : MonoBehaviour
 
 	void Update()
 	{
+		// Rather do this in the CheckComplete function... Just check if we have reached the end of our waves in this level.
 		if(AllEnemiedInLevelKilled() && !MenuActive)
 		{
 			MenuActive = true;
@@ -58,8 +60,8 @@ public class LevelHandler : MonoBehaviour
 	{
 		ActiveLevelGO = AllLevelsGO.transform.GetChild(ActiveLevelIndex).gameObject;
 		FormationsInLevel = ActiveLevelGO.transform.GetChild(0);
-		EnemiesAliveInLevel = CountEnemiesInFormationsInLevel(FormationsInLevel);
-		InvokeRepeating("SpawnFormations", 0, 40);
+		EnemiesAliveInLevel = CountEnemiesInAllFormations(FormationsInLevel);
+		SpawnFormations();
 	}
 
 	private void SpawnFormations()
@@ -74,9 +76,10 @@ public class LevelHandler : MonoBehaviour
 		activeFormation.gameObject.SetActive(true);
 		EnemySpawner.SpawnFormation(activeFormation);
 		FormationIndex++;
+		InvokeRepeating("WaveDefeatedCheck", 5, 5);
 	}
 
-	private int CountEnemiesInFormationsInLevel(Transform formationsInLevel)
+	private int CountEnemiesInAllFormations(Transform formationsInLevel)
 	{
 		int count = 0;
 		foreach(Transform formation in formationsInLevel)
@@ -86,13 +89,25 @@ public class LevelHandler : MonoBehaviour
 		}
 		return count;
 	}
-	
+
+	private bool AllEnemiedInActiveFormationKilled()
+	{
+		Transform activeFormation = FormationsInLevel.GetChild(FormationIndex - 1);
+		foreach(Transform subFormation in activeFormation)
+		{
+			foreach(Transform position in subFormation)
+			{
+				if(position.childCount > 0)
+					return false;
+			}
+		}
+		return true;
+	}
+
 	private bool AllEnemiedInLevelKilled()
 	{
 		return EnemiesAliveInLevel <= 0;
 	}
-
-
 
 	// Called when an enemy is killed.
 	public void EnemyKilled()
@@ -142,5 +157,15 @@ public class LevelHandler : MonoBehaviour
 			}
 		}
 		return enemyList;
+	}
+
+
+	private void WaveDefeatedCheck()
+	{
+		if(AllEnemiedInActiveFormationKilled())
+		{
+			CancelInvoke("WaveDefeatedCheck");
+			SpawnFormations();
+		}
 	}
 }
