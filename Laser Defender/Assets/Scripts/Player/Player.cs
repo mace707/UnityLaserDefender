@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
 
+	public GameObject ScatterGunGO;
+
 	private GameObject ActiveShield;
 
 	public AudioClip FireSound;
@@ -69,17 +71,18 @@ public class Player : MonoBehaviour
 	void Start () 
 	{
 		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
-		StartingDamage = PlayerPrefs.GetFloat(StringConstants.PPDamage, DefaultDamage);
+		//StartingDamage = PlayerPrefs.GetFloat(StringConstants.PPDamage, DefaultDamage);
+
 		Damage = StartingDamage;
 
-		StartingHitpoints = PlayerPrefs.GetFloat(StringConstants.PPHitPoints, DefaultHitpoints);
+	//	StartingHitpoints = PlayerPrefs.GetFloat(StringConstants.PPHitPoints, DefaultHitpoints);
 		HitPoints = StartingHitpoints;
 		MaxHitPoints = StartingHitpoints;
 
-		StartingSpeed = PlayerPrefs.GetFloat(StringConstants.PPSpeed, DefaultSpeed);
+	//	StartingSpeed = PlayerPrefs.GetFloat(StringConstants.PPSpeed, DefaultSpeed);
 		Speed = StartingSpeed;
 
-		StartingShieldPoints = PlayerPrefs.GetFloat(StringConstants.PPShieldPoints, DefaultShieldPoints);
+	//	StartingShieldPoints = PlayerPrefs.GetFloat(StringConstants.PPShieldPoints, DefaultShieldPoints);
 		ShieldPoints = StartingShieldPoints;
 		MaxShieldPoints = StartingShieldPoints;
 
@@ -166,6 +169,31 @@ public class Player : MonoBehaviour
 				InvokeRepeating("RegenerateShield", 5f, 0.5f);
 				CancelInvoke("DepleteShield");
 			}
+		}
+
+		if(Input.GetKeyDown(KeyCode.LeftControl))
+			FireScatterGun();
+			
+	}
+
+	//FireSpecial...
+	public void FireScatterGun()
+	{
+		float pl = 0;
+		float pr = 0;
+		for(int i = 0; i < 10; i += 2)
+		{
+			pl-=3;
+			pr+=3;
+			
+			GameObject leftBeam = (GameObject)Instantiate(ScatterGunGO, transform.position, Quaternion.identity);
+			GameObject rightBeam = (GameObject)Instantiate(ScatterGunGO, transform.position, Quaternion.identity);
+
+			rightBeam.GetComponent<Projectile>().SetDamage(Damage);
+			leftBeam.GetComponent<Projectile>().SetDamage(Damage);
+
+			rightBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(pl, ProjectileSpeed, 0);
+			leftBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(pr, ProjectileSpeed, 0);
 		}
 	}
 

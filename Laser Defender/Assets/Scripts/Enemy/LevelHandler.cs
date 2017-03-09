@@ -64,7 +64,7 @@ public class LevelHandler : MonoBehaviour
 		SpawnFormations();
 	}
 
-	private void SpawnFormations()
+	private void SpawnFormations(bool delayed = false)
 	{
 		if(FormationIndex >= FormationsInLevel.childCount)
 		{
@@ -74,7 +74,8 @@ public class LevelHandler : MonoBehaviour
 
 		Transform activeFormation = FormationsInLevel.GetChild(FormationIndex);
 		activeFormation.gameObject.SetActive(true);
-		EnemySpawner.SpawnFormation(activeFormation);
+		EnemySpawner.Setup(activeFormation,delayed);
+		EnemySpawner.SpawnFormation();
 		FormationIndex++;
 		InvokeRepeating("WaveDefeatedCheck", 5, 5);
 	}
@@ -165,7 +166,7 @@ public class LevelHandler : MonoBehaviour
 		if(AllEnemiedInActiveFormationKilled())
 		{
 			CancelInvoke("WaveDefeatedCheck");
-			SpawnFormations();
+			SpawnFormations(true);
 		}
 	}
 }
