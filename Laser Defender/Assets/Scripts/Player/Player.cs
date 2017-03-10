@@ -65,7 +65,12 @@ public class Player : MonoBehaviour
 	public GameObject MenuHandlerGO;
 	private InGameMenuHandler MenuHandler;
 
+	IWeapon PrimaryWeapon;
+	IWeapon SecondaryWeapon;
+
 	public bool FreezePlayer = false;
+
+	Focus FocusTracker;
 
 	// Use this for initialization
 	void Start () 
@@ -98,6 +103,9 @@ public class Player : MonoBehaviour
 
 		UpdateHealthBar();
 		UpdateShieldPointBar();
+		PrimaryWeapon = new LazerGun(ProjectileGO);
+		FocusTracker = new Focus(150, 10, 1);
+		FocusTracker.StartGathering();
 	}
 
 	void FireProjectile()
@@ -116,9 +124,10 @@ public class Player : MonoBehaviour
 		} 
 		else
 		{
-			GameObject beam = (GameObject)Instantiate(ProjectileGO, transform.position, Quaternion.identity);
-			beam.GetComponent<Projectile>().SetDamage(Damage);
-			beam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
+			GetActiveWeapon().Fire(transform.position, new Vector3(0, ProjectileSpeed, 0));
+			//GameObject beam = (GameObject)Instantiate(ProjectileGO, transform.position, Quaternion.identity);
+			//beam.GetComponent<Projectile>().SetDamage(Damage);
+			//beam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
 		}
 	}
 
@@ -174,6 +183,11 @@ public class Player : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.LeftControl))
 			FireScatterGun();
 			
+	}
+
+	IWeapon GetActiveWeapon()
+	{
+		return PrimaryWeapon;
 	}
 
 	//FireSpecial...
