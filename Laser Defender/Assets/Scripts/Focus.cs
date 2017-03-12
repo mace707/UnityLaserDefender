@@ -3,43 +3,63 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Focus
+public class Focus : MonoBehaviour
 {
-	private int FocusPoints = 0;
-	private int MaxFocusPoints = 0;
+	[SerializeField]
+	private float MaxFocusPoints = 0;
+
+	[SerializeField]
 	private int Increment = 0;
+
+	[SerializeField]
 	private float RepeatRate = 0;
 
-	public Image UIBar;
-	public Text UIText;
+	[SerializeField]
+	private float Cost = 0;
 
-	public Focus(int maxFocusPoints, int increment, float repeatRate)
-	{
-		MaxFocusPoints = maxFocusPoints;
-		Increment = increment;
-		RepeatRate = repeatRate;
-		UIBar = GameObject.Find("FPBarForeground").GetComponent<Image>();
-		UIText = GameObject.Find("FPDisplayText").GetComponent<Text>();
-	}
+	[SerializeField]
+	private Image UIBar = null;
 
-	public void StartGathering(MonoBehaviour monoBehaviour)
+	[SerializeField]
+	private Text UIText = null;
+
+	private float FocusPoints = 0;
+
+	public void StartGathering()
 	{
-		monoBehaviour.InvokeRepeating("Gather", 0, RepeatRate);
+		InvokeRepeating("Gather", 0, RepeatRate);
 	}
 
 	public void StopGathering()
 	{
-		MonoBehaviour.CancelInvoke("Gather");
+		CancelInvoke("Gather");
 	}
 
 	private void Gather()
 	{
+		if (GlobalConstants.FreezeAllNoTimeScale) 
+		{
+			UpdateUI();
+			return;
+		}
+		
 		if(FocusPoints < MaxFocusPoints)
 		{
 			FocusPoints += Increment;
 			FocusPoints = Mathf.Clamp(FocusPoints, 0, MaxFocusPoints);
 			UpdateUI();
 		}
+	}
+
+	public bool Consume()
+	{
+		if (FocusPoints - Cost >= 0)
+		{
+			FocusPoints -= Cost;
+			UpdateUI ();
+			return true;
+		}
+		return false;
 	}
 
 	private void UpdateUI()

@@ -70,7 +70,9 @@ public class Player : MonoBehaviour
 
 	public bool FreezePlayer = false;
 
-	Focus FocusTracker;
+	[SerializeField]
+	private GameObject FocusTrackerGO;
+	private Focus FocusTracker;
 
 	// Use this for initialization
 	void Start () 
@@ -104,7 +106,7 @@ public class Player : MonoBehaviour
 		UpdateHealthBar();
 		UpdateShieldPointBar();
 		PrimaryWeapon = new LazerGun(ProjectileGO);
-		FocusTracker = new Focus(150, 10, 1);
+		FocusTracker = FocusTrackerGO.GetComponent<Focus>();
 		FocusTracker.StartGathering();
 	}
 
@@ -193,21 +195,24 @@ public class Player : MonoBehaviour
 	//FireSpecial...
 	public void FireScatterGun()
 	{
-		float pl = 0;
-		float pr = 0;
-		for(int i = 0; i < 10; i += 2)
+		if (FocusTracker.Consume ()) 
 		{
-			pl-=3;
-			pr+=3;
+			float pl = 0;
+			float pr = 0;
+			for (int i = 0; i < 10; i += 2) 
+			{
+				pl -= 3;
+				pr += 3;
 			
-			GameObject leftBeam = (GameObject)Instantiate(ScatterGunGO, transform.position, Quaternion.identity);
-			GameObject rightBeam = (GameObject)Instantiate(ScatterGunGO, transform.position, Quaternion.identity);
+				GameObject leftBeam = (GameObject)Instantiate (ScatterGunGO, transform.position, Quaternion.identity);
+				GameObject rightBeam = (GameObject)Instantiate (ScatterGunGO, transform.position, Quaternion.identity);
 
-			rightBeam.GetComponent<Projectile>().SetDamage(Damage);
-			leftBeam.GetComponent<Projectile>().SetDamage(Damage);
+				rightBeam.GetComponent<Projectile> ().SetDamage (Damage);
+				leftBeam.GetComponent<Projectile> ().SetDamage (Damage);
 
-			rightBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(pl, ProjectileSpeed, 0);
-			leftBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(pr, ProjectileSpeed, 0);
+				rightBeam.GetComponent<Rigidbody2D> ().velocity = new Vector3 (pl, ProjectileSpeed, 0);
+				leftBeam.GetComponent<Rigidbody2D> ().velocity = new Vector3 (pr, ProjectileSpeed, 0);
+			}
 		}
 	}
 
