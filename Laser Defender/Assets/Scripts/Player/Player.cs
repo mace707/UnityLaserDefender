@@ -8,7 +8,6 @@ public class Player : MonoBehaviour
 	float XMax = 5;
 	float Padding = 0.5f;
 
-	public GameObject ProjectileGO;
 	public GameObject Shield;
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
@@ -65,13 +64,16 @@ public class Player : MonoBehaviour
 	public GameObject MenuHandlerGO;
 	private InGameMenuHandler MenuHandler;
 
-	IWeapon PrimaryWeapon;
-	IWeapon SecondaryWeapon;
+	Weapon PrimaryWeapon;
+
+	[SerializeField]
+	private GameObject ShieldNew = null;
+	private Shield ShieldTracker;
 
 	public bool FreezePlayer = false;
 
 	[SerializeField]
-	private GameObject FocusTrackerGO;
+	private GameObject FocusTrackerGO = null;
 	private Focus FocusTracker;
 
 	// Use this for initialization
@@ -105,9 +107,10 @@ public class Player : MonoBehaviour
 
 		UpdateHealthBar();
 		UpdateShieldPointBar();
-		PrimaryWeapon = new LazerGun(ProjectileGO);
 		FocusTracker = FocusTrackerGO.GetComponent<Focus>();
 		FocusTracker.StartGathering();
+		PrimaryWeapon = WeaponFactory.GetWeapon(WeaponFactory.WeaponType.WeaponTypeRocketLauncher);
+		ShieldTracker = ShieldNew.GetComponent<Shield>();
 	}
 
 	void FireProjectile()
@@ -115,21 +118,16 @@ public class Player : MonoBehaviour
 		AudioSource.PlayClipAtPoint(FireSound, transform.position);
 		// Quaternion.identity -> means no rotations
 
-		if(DoubleShotEnabled)
+		if(!DoubleShotEnabled)
 		{
-			Vector3 leftBeamPos = new Vector3(transform.position.x - 0.5f, transform.position.y + 0.25f, transform.position.z);
-			Vector3 rightBeamPos = new Vector3(transform.position.x + 0.5f, transform.position.y + 0.25f, transform.position.z);
-			GameObject leftBeam = (GameObject)Instantiate(ProjectileGO, leftBeamPos, Quaternion.identity);
-			GameObject rightBeam = (GameObject)Instantiate(ProjectileGO, rightBeamPos, Quaternion.identity);
-			leftBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
-			rightBeam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
+			Vector3 leftBullet = new Vector3(transform.position.x - 0.5f, transform.position.y, transform.position.z);
+			Vector3 rightBullet = new Vector3(transform.position.x + 0.5f, transform.position.y, transform.position.z);
+			PrimaryWeapon.Fire(leftBullet, new Vector3(0, ProjectileSpeed, 0));
+			PrimaryWeapon.Fire(rightBullet, new Vector3(0, ProjectileSpeed, 0));
 		} 
 		else
 		{
-			GetActiveWeapon().Fire(transform.position, new Vector3(0, ProjectileSpeed, 0));
-			//GameObject beam = (GameObject)Instantiate(ProjectileGO, transform.position, Quaternion.identity);
-			//beam.GetComponent<Projectile>().SetDamage(Damage);
-			//beam.GetComponent<Rigidbody2D>().velocity = new Vector3(0, ProjectileSpeed, 0);
+			PrimaryWeapon.Fire(transform.position, new Vector3(0, ProjectileSpeed, 0));
 		}
 	}
 
@@ -168,28 +166,24 @@ public class Player : MonoBehaviour
 
 		if(Input.GetKeyDown(KeyCode.LeftShift))
 		{
-			if(!ActiveShield && ShieldPoints > 0)
-			{
-				ActiveShield = (GameObject)Instantiate(Shield, transform.position, Quaternion.identity);
-				InvokeRepeating("DepleteShield", 0.0001f, 0.1f);
-				CancelInvoke("RegenerateShield");
-			} 
-			else if (ActiveShield)
-			{	
-				Destroy(ActiveShield);
-				InvokeRepeating("RegenerateShield", 5f, 0.5f);
-				CancelInvoke("DepleteShield");
-			}
+			ShieldNew.GetComponent<Shield>().Activate(transform);
+	//if(!ActiveShield && ShieldPoints > 0)
+	//{
+	//	ActiveShield = (GameObject)Instantiate(Shield, transform.position, Quaternion.identity);
+	//		InvokeRepeating("DepleteShield", 0.0001f, 0.1f);
+	//		CancelInvoke("RegenerateShield");
+	//		} 
+	//		else if (ActiveShield)
+	//		{	
+	//			Destroy(ActiveShield);
+	//			InvokeRepeating("RegenerateShield", 5f, 0.5f);
+	//			CancelInvoke("DepleteShield");
+	//		}
 		}
 
 		if(Input.GetKeyDown(KeyCode.LeftControl))
 			FireScatterGun();
 			
-	}
-
-	IWeapon GetActiveWeapon()
-	{
-		return PrimaryWeapon;
 	}
 
 	//FireSpecial...
@@ -218,6 +212,8 @@ public class Player : MonoBehaviour
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
+		if(ShieldTracker.Active())
+			return;
 		Projectile laser = col.gameObject.GetComponent<Projectile>();
 
 		if(laser)

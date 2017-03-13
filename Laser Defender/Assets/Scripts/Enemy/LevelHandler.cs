@@ -53,7 +53,9 @@ public class LevelHandler : MonoBehaviour
 	public void ChangeActiveLevel()
 	{
 		ActiveLevelIndex++;
+		MenuHandler.ActivateCoundDownTimer();
 		LoadActiveLevel();
+		MenuActive = false;
 	}
 
 	private void LoadActiveLevel()
@@ -61,6 +63,7 @@ public class LevelHandler : MonoBehaviour
 		ActiveLevelGO = AllLevelsGO.transform.GetChild(ActiveLevelIndex).gameObject;
 		FormationsInLevel = ActiveLevelGO.transform.GetChild(0);
 		EnemiesAliveInLevel = CountEnemiesInAllFormations(FormationsInLevel);
+		FormationIndex = 0;
 		SpawnFormations();
 	}
 
@@ -124,7 +127,7 @@ public class LevelHandler : MonoBehaviour
 
 	public void DeactivatePauseMenu()
 	{
-		MenuActive = false;
+		MenuHandler.ActivateCoundDownTimer();
 	}
 
 	public List<Enemy> GetUniqueEnemiesInLevel()
