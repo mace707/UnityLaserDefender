@@ -86,7 +86,7 @@ public class Shield : MonoBehaviour
 	{
 		float ratio = ShieldPoints / MaxShieldPoints;
 		UIBar.rectTransform.localScale = new Vector3(ratio, 1, 1);
-		UIText.text = "F " + ShieldPoints.ToString() + "/" + MaxShieldPoints;
+		UIText.text = "S " + ShieldPoints.ToString() + "/" + MaxShieldPoints;
 	}
 
 	void OnTriggerEnter2D(Collider2D col)

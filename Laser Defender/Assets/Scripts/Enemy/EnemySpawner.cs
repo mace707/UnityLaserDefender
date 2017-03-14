@@ -61,7 +61,6 @@ public class EnemySpawner : MonoBehaviour
 		EnemySpawnCountMax = 0;
 		EnemySpawnCount = 0;
 		Player.ResetValues();
-		Player.UpdateHealthBar();
 	}
 
 	// Update is called once per frame

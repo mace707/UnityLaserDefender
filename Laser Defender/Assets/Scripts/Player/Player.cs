@@ -14,8 +14,6 @@ public class Player : MonoBehaviour
 	public GameObject ScatterGunGO;
 
 	public AudioClip FireSound;
-	public Image HealthBarForeGround;
-	public Text HealthBarRatioText;
 
 	[SerializeField]
 	public bool DoubleShotEnabled = true;
@@ -32,10 +30,9 @@ public class Player : MonoBehaviour
 	public GameObject mPropertyKeeperSpeedCost;
 	public GameObject mPropertyKeeperProjectilesCost;
 
-	public float MaxHitPoints = 100;
-	private float HitPoints = 100;
-	private float DefaultHitpoints = 100;
-	private float StartingHitpoints = 100;
+	[SerializeField]
+	private float MaxHitPoints = 0;
+	private float HitPoints = 0;
 
 	[SerializeField]
 	public float Speed = 15.0f;
@@ -57,11 +54,15 @@ public class Player : MonoBehaviour
 	private GameObject GOShield = null;
 	private Shield mShield;
 
+	[SerializeField]
+	private GameObject GOHPBar = null;
+	private HPBarManager mHPBar;
+
 	public bool FreezePlayer = false;
 
 	[SerializeField]
-	private GameObject FocusTrackerGO = null;
-	private Focus FocusTracker;
+	private GameObject GOFocus = null;
+	private Focus mFocus;
 
 	// Use this for initialization
 	void Start () 
@@ -72,8 +73,10 @@ public class Player : MonoBehaviour
 		Damage = StartingDamage;
 
 	//	StartingHitpoints = PlayerPrefs.GetFloat(StringConstants.PPHitPoints, DefaultHitpoints);
-		HitPoints = StartingHitpoints;
-		MaxHitPoints = StartingHitpoints;
+	//	HitPoints = StartingHitpoints;
+	//	MaxHitPoints = StartingHitpoints;
+
+		HitPoints = MaxHitPoints;
 
 	//	StartingSpeed = PlayerPrefs.GetFloat(StringConstants.PPSpeed, DefaultSpeed);
 		Speed = StartingSpeed;
@@ -88,11 +91,12 @@ public class Player : MonoBehaviour
 
 		mDustKeeper = GameObject.Find(StringConstants.PPDust).GetComponent<DustText>();
 
-		UpdateHealthBar();
-		FocusTracker = FocusTrackerGO.GetComponent<Focus>();
-		FocusTracker.StartGathering();
+		mFocus = GOFocus.GetComponent<Focus>();
+		mFocus.StartGathering();
 		PrimaryWeapon = WeaponFactory.GetWeapon(WeaponFactory.WeaponType.WeaponTypeRocketLauncher);
 		mShield = GOShield.GetComponent<Shield>();
+		mHPBar = GOHPBar.GetComponent<HPBarManager>();
+		mHPBar.Setup(MaxHitPoints);
 	}
 
 	void FireProjectile()
@@ -154,7 +158,7 @@ public class Player : MonoBehaviour
 	//FireSpecial...
 	public void FireScatterGun()
 	{
-		if (FocusTracker.Consume ()) 
+		if (mFocus.Consume ()) 
 		{
 			float pl = 0;
 			float pr = 0;
@@ -191,7 +195,7 @@ public class Player : MonoBehaviour
 
 			laser.Hit();
 			HitPoints -= laser.GetDamage();
-			UpdateHealthBar();
+			mHPBar.DamageTaken(laser.GetDamage ());
 			if(HitPoints <= 0)
 				Die();
 			return;
@@ -209,19 +213,6 @@ public class Player : MonoBehaviour
 	void SaveSettings()
 	{
 		PlayerPrefs.SetInt(StringConstants.PPDust, DustText.Dust);
-	}
-
-	public void UpdateHealthBar()
-	{
-		float ratio = HitPoints / MaxHitPoints;
-		HealthBarForeGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
-
-		if(ratio > 0.75)			HealthBarForeGround.color = new Color32(0, 255, 0, 200);
-		else if(ratio > 0.50)		HealthBarForeGround.color = new Color32(255, 255, 0, 200);
-		else if(ratio > 0.25)		HealthBarForeGround.color = new Color32(255, 165, 0, 200);
-		else if(ratio >= 0)			HealthBarForeGround.color = new Color32(255, 0, 0, 200);
-
-		HealthBarRatioText.text = "HP " + HitPoints.ToString() + "/" + MaxHitPoints.ToString();
 	}
 
 	void PostExplosionShift(Vector3 impactLocation)
@@ -275,7 +266,6 @@ public class Player : MonoBehaviour
 	public void AcceptShipUpgrades()
 	{
 		PlayerPrefs.SetFloat(StringConstants.PPHitPoints, HitPoints);
-		StartingHitpoints = HitPoints;
 		MaxHitPoints = HitPoints;
 
 		PlayerPrefs.SetFloat(StringConstants.PPSpeed, Speed);
@@ -284,13 +274,13 @@ public class Player : MonoBehaviour
 		PlayerPrefs.SetFloat(StringConstants.PPDamage, Damage);
 		StartingDamage = Damage;
 
-		UpdateHealthBar();
+	//	UpdateHealthBar();
 		MenuHandler.ActivatePauseMenu();
 	}
 
 	public void ResetValues()
 	{
-		HitPoints = StartingHitpoints;
+		HitPoints = MaxHitPoints;
 		Speed = StartingSpeed;
 		Damage = StartingDamage;
 	}
@@ -331,7 +321,7 @@ public class Player : MonoBehaviour
 
 	private float UpgradeCostHealth()
 	{
-		return HitPoints / DefaultHitpoints * 100;
+		return HitPoints;/// DefaultHitpoints * 100;
 	}
 
 	private float UpgradeCostDamage()
@@ -348,7 +338,7 @@ public class Player : MonoBehaviour
 	public void PrepareDefaults()
 	{
 		Damage = StartingDamage;
-		HitPoints = StartingHitpoints;
+		HitPoints = MaxHitPoints;//StartingHitpoints;
 		Speed = StartingSpeed;
 	}
 }
