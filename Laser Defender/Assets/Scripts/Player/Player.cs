@@ -8,20 +8,14 @@ public class Player : MonoBehaviour
 	float XMax = 5;
 	float Padding = 0.5f;
 
-	public GameObject Shield;
 	public float ProjectileSpeed = 0.0f;
 	public float FiringRate = 0.2f;
 
 	public GameObject ScatterGunGO;
 
-	private GameObject ActiveShield;
-
 	public AudioClip FireSound;
 	public Image HealthBarForeGround;
 	public Text HealthBarRatioText;
-
-	public Image ShieldBarForGround;
-	public Text ShieldBarRatioText;
 
 	[SerializeField]
 	public bool DoubleShotEnabled = true;
@@ -31,13 +25,11 @@ public class Player : MonoBehaviour
 	public GameObject mPropertyKeeperHealth;
 	public GameObject mPropertyKeeperDamage;
 	public GameObject mPropertyKeeperSpeed;
-	public GameObject mPropertyKeeperShield;
 	public GameObject mPropertyKeeperProjectiles;
 
 	public GameObject mPropertyKeeperHealthCost;
 	public GameObject mPropertyKeeperDamageCost;
 	public GameObject mPropertyKeeperSpeedCost;
-	public GameObject mPropertyKeeperShieldCost;
 	public GameObject mPropertyKeeperProjectilesCost;
 
 	public float MaxHitPoints = 100;
@@ -56,19 +48,14 @@ public class Player : MonoBehaviour
 
 	private DustText mDustKeeper;
 
-	public float MaxShieldPoints = 100;
-	private float ShieldPoints = 100;
-	private float DefaultShieldPoints = 100;
-	private float StartingShieldPoints = 100;
-
 	public GameObject MenuHandlerGO;
 	private InGameMenuHandler MenuHandler;
 
 	Weapon PrimaryWeapon;
 
 	[SerializeField]
-	private GameObject ShieldNew = null;
-	private Shield ShieldTracker;
+	private GameObject GOShield = null;
+	private Shield mShield;
 
 	public bool FreezePlayer = false;
 
@@ -91,10 +78,6 @@ public class Player : MonoBehaviour
 	//	StartingSpeed = PlayerPrefs.GetFloat(StringConstants.PPSpeed, DefaultSpeed);
 		Speed = StartingSpeed;
 
-	//	StartingShieldPoints = PlayerPrefs.GetFloat(StringConstants.PPShieldPoints, DefaultShieldPoints);
-		ShieldPoints = StartingShieldPoints;
-		MaxShieldPoints = StartingShieldPoints;
-
 		//Distance between the camera and the object.
 		float distance = transform.position.z - Camera.main.transform.position.z;
 
@@ -106,11 +89,10 @@ public class Player : MonoBehaviour
 		mDustKeeper = GameObject.Find(StringConstants.PPDust).GetComponent<DustText>();
 
 		UpdateHealthBar();
-		UpdateShieldPointBar();
 		FocusTracker = FocusTrackerGO.GetComponent<Focus>();
 		FocusTracker.StartGathering();
 		PrimaryWeapon = WeaponFactory.GetWeapon(WeaponFactory.WeaponType.WeaponTypeRocketLauncher);
-		ShieldTracker = ShieldNew.GetComponent<Shield>();
+		mShield = GOShield.GetComponent<Shield>();
 	}
 
 	void FireProjectile()
@@ -143,14 +125,6 @@ public class Player : MonoBehaviour
 			// Restrict the player to the game space.
 			float newX = Mathf.Clamp(transform.position.x, XMin, XMax);
 			transform.position = new Vector3(newX, transform.position.y, transform.position.z);
-			if(ActiveShield)
-			{
-				ActiveShield.transform.position = transform.position;
-			}
-			else
-			{
-				CancelInvoke("DepleteShield");
-			}
 		}	
 	}
 
@@ -166,22 +140,10 @@ public class Player : MonoBehaviour
 
 		if(Input.GetKeyDown(KeyCode.LeftShift))
 		{
-			if(ShieldTracker.IsShieldActive())
-				ShieldTracker.DeactivateShield();
+			if(mShield.IsShieldActive())
+				mShield.DeactivateShield();
 			else
-				ShieldTracker.ActivateShield(transform);
-	//if(!ActiveShield && ShieldPoints > 0)
-	//{
-	//	ActiveShield = (GameObject)Instantiate(Shield, transform.position, Quaternion.identity);
-	//		InvokeRepeating("DepleteShield", 0.0001f, 0.1f);
-	//		CancelInvoke("RegenerateShield");
-	//		} 
-	//		else if (ActiveShield)
-	//		{	
-	//			Destroy(ActiveShield);
-	//			InvokeRepeating("RegenerateShield", 5f, 0.5f);
-	//			CancelInvoke("DepleteShield");
-	//		}
+				mShield.ActivateShield(transform);
 		}
 
 		if(Input.GetKeyDown(KeyCode.LeftControl))
@@ -215,7 +177,7 @@ public class Player : MonoBehaviour
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		if(ShieldTracker.IsShieldActive())
+		if(mShield.IsShieldActive())
 			return;
 
 		Projectile laser = col.gameObject.GetComponent<Projectile>();
@@ -236,30 +198,6 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	void DepleteShield()
-	{
-		ShieldPoints--;
-		UpdateShieldPointBar();
-		if(ShieldPoints <= 0)
-		{
-			Destroy(ActiveShield);
-			CancelInvoke("DepleteShield");
-			ShieldPoints = 0;
-			InvokeRepeating("RegenerateShield", 5f, 0.5f);
-		}
-	}
-
-	void RegenerateShield()
-	{
-		ShieldPoints++;
-		UpdateShieldPointBar();
-		if(ShieldPoints >= MaxShieldPoints)
-		{
-			CancelInvoke("RegenerateShield");
-			ShieldPoints = MaxShieldPoints;
-		}
-	}
-
 	void Die()
 	{
 		SaveSettings();
@@ -271,13 +209,6 @@ public class Player : MonoBehaviour
 	void SaveSettings()
 	{
 		PlayerPrefs.SetInt(StringConstants.PPDust, DustText.Dust);
-	}
-
-	public void UpdateShieldPointBar()
-	{
-		float ratio = ShieldPoints / MaxShieldPoints;
-		ShieldBarForGround.rectTransform.localScale = new Vector3(ratio, 1, 1);
-		ShieldBarRatioText.text = "SP " + (Mathf.Floor(ratio * 100)).ToString() + '%';
 	}
 
 	public void UpdateHealthBar()
@@ -327,13 +258,11 @@ public class Player : MonoBehaviour
 		mPropertyKeeperHealth.GetComponent<Text>().text 			= HitPoints.ToString();
 		mPropertyKeeperSpeed.GetComponent<Text>().text 				= Speed.ToString();
 		mPropertyKeeperDamage.GetComponent<Text>().text 			= Damage.ToString();
-		mPropertyKeeperShield.GetComponent<Text>().text 			= ShieldPoints.ToString();
 		mPropertyKeeperProjectiles.GetComponent<Text>().text 		= "1";
 
 		mPropertyKeeperHealthCost.GetComponent<Text>().text 		= UpgradeCostHealth().ToString() + "$";
 		mPropertyKeeperSpeedCost.GetComponent<Text>().text 			= UpgradeCostSpeed().ToString() + "$";
 		mPropertyKeeperDamageCost.GetComponent<Text>().text 		= UpgradeCostDamage().ToString() + "$";
-		mPropertyKeeperShieldCost.GetComponent<Text>().text 		= UpgradeCostShield().ToString() + "$";
 		mPropertyKeeperProjectilesCost.GetComponent<Text>().text 	= "NA";
 	}
 
@@ -355,12 +284,7 @@ public class Player : MonoBehaviour
 		PlayerPrefs.SetFloat(StringConstants.PPDamage, Damage);
 		StartingDamage = Damage;
 
-		PlayerPrefs.SetFloat(StringConstants.PPShieldPoints, ShieldPoints);
-		StartingShieldPoints = ShieldPoints;
-		MaxShieldPoints = ShieldPoints;
-
 		UpdateHealthBar();
-		UpdateShieldPointBar();
 		MenuHandler.ActivatePauseMenu();
 	}
 
@@ -369,7 +293,6 @@ public class Player : MonoBehaviour
 		HitPoints = StartingHitpoints;
 		Speed = StartingSpeed;
 		Damage = StartingDamage;
-		ShieldPoints = StartingShieldPoints;
 	}
 
 	public void UpgradeHealth()
@@ -405,16 +328,6 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	public void UpgradeShield()
-	{
-		float cost = UpgradeCostShield();
-		if(cost <= DustText.Dust)
-		{
-			mDustKeeper.SetScore((int)-cost);
-			ShieldPoints *= 2;
-			UpdateValues();
-		}
-	}
 
 	private float UpgradeCostHealth()
 	{
@@ -431,16 +344,11 @@ public class Player : MonoBehaviour
 		return ((Speed + 5 - DefaultSpeed)/5) * 200;
 	}
 
-	private float UpgradeCostShield()
-	{
-		return ShieldPoints / DefaultShieldPoints * 100;
-	}
 
 	public void PrepareDefaults()
 	{
 		Damage = StartingDamage;
 		HitPoints = StartingHitpoints;
 		Speed = StartingSpeed;
-		ShieldPoints = StartingShieldPoints;
 	}
 }

@@ -62,7 +62,6 @@ public class EnemySpawner : MonoBehaviour
 		EnemySpawnCount = 0;
 		Player.ResetValues();
 		Player.UpdateHealthBar();
-		Player.UpdateShieldPointBar();
 	}
 
 	// Update is called once per frame
