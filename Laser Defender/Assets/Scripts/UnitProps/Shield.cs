@@ -5,62 +5,93 @@ using UnityEngine.UI;
 
 public class Shield : MonoBehaviour 
 {
-	[SerializeField]
-	private float MaxShieldPoints = 0;
+	[SerializeField]	private float MaxShieldPoints 	= 0;
+	[SerializeField] 	private float ShieldPoints 		= 0;
+	[SerializeField]	private int ConsumptionRate 	= 0;
+	[SerializeField]	private int RegenerationRate 	= 0;
 
-	[SerializeField]
-	private int Increment = 0;
+	private Image UIBar 				= null;
+	private Text UIText 				= null;
+	private GameObject GOActiveShield 	= null;
 
-	[SerializeField]
-	private float RepeatRate = 0;
-
-	[SerializeField]
-	private float Cost = 0;
-
-	private float ShieldPoints = 0;
-
-	GameObject GOActiveShield = null;
-	void Start()
+	public void StartRegenerating()
 	{
-		ShieldPoints = MaxShieldPoints;
+		InvokeRepeating("Regenerate", 5, 1);
 	}
 
-	public void Activate(Transform parent)
+	private void Regenerate()
 	{
-		if(!GOActiveShield)
+		if (GlobalConstants.FreezeAllNoTimeScale)
 		{
-			GOActiveShield = Instantiate(gameObject, parent.position, Quaternion.identity);
-			GOActiveShield.transform.SetParent(parent);
-			InvokeRepeating("Consume", 0, 5);
+			UpdateUI();
+			return;
+		}
+
+		if(ShieldPoints < MaxShieldPoints)
+		{
+			ShieldPoints += RegenerationRate;
+			ShieldPoints = Mathf.Clamp(ShieldPoints, 0, MaxShieldPoints);
+			UpdateUI();
 		}
 		else
-			Deactivate();
+			StopRegenerating();
+	}
+
+	public void StopRegenerating()
+	{
+		CancelInvoke("Regenerate");
+	}
+
+	public void ActivateShield(Transform parent)
+	{
+		StopRegenerating();
+		UIBar = GameObject.Find("SPBarForeground").GetComponent<Image>();
+		UIText = GameObject.Find("SPDisplayText").GetComponent<Text>();
+		GOActiveShield = Instantiate(gameObject, parent.position, Quaternion.identity);
+		GOActiveShield.transform.SetParent(parent);
+		InvokeRepeating("Consume", 0, 1);
 	}
 
 	private void Consume()
 	{
-		if(ShieldPoints - Cost >= 0)
-			ShieldPoints -= Cost;
+		if (GlobalConstants.FreezeAllNoTimeScale)
+		{
+			UpdateUI();
+			return;
+		}
+
+		if(ShieldPoints > 0)
+		{
+			ShieldPoints -= ConsumptionRate;
+			ShieldPoints = Mathf.Clamp(ShieldPoints, 0, MaxShieldPoints);
+			UpdateUI();
+		}
 		else
-			Deactivate();
-		Debug.Log(ShieldPoints);
+			DeactivateShield();
 	}
 
-	public void Deactivate()
+	public void DeactivateShield()
 	{
 		CancelInvoke("Consume");
 		Destroy(GOActiveShield);
+		StartRegenerating();
 	}
 
-	public bool Active()
+	public bool IsShieldActive()
 	{
 		return GOActiveShield != null;
+	}
+
+	private void UpdateUI()
+	{
+		float ratio = ShieldPoints / MaxShieldPoints;
+		UIBar.rectTransform.localScale = new Vector3(ratio, 1, 1);
+		UIText.text = "F " + ShieldPoints.ToString() + "/" + MaxShieldPoints;
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
 		Projectile laser = col.gameObject.GetComponent<Projectile>();
-
 		if(laser)
 			laser.Hit();
 	}

@@ -166,7 +166,10 @@ public class Player : MonoBehaviour
 
 		if(Input.GetKeyDown(KeyCode.LeftShift))
 		{
-			ShieldNew.GetComponent<Shield>().Activate(transform);
+			if(ShieldTracker.IsShieldActive())
+				ShieldTracker.DeactivateShield();
+			else
+				ShieldTracker.ActivateShield(transform);
 	//if(!ActiveShield && ShieldPoints > 0)
 	//{
 	//	ActiveShield = (GameObject)Instantiate(Shield, transform.position, Quaternion.identity);
@@ -212,8 +215,9 @@ public class Player : MonoBehaviour
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		if(ShieldTracker.Active())
+		if(ShieldTracker.IsShieldActive())
 			return;
+
 		Projectile laser = col.gameObject.GetComponent<Projectile>();
 
 		if(laser)
