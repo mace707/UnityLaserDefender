@@ -45,11 +45,32 @@ public class Enemy : MonoBehaviour
 
 	private LevelHandler ActiveLevelHandler;
 
+	[SerializeField] private GameObject GOShield = null;
+	[SerializeField] private float ShieldMaxDuration = 0;
+	[SerializeField] private float ShieldMinDuration = 0;
+
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
+		if(GOShield != null)
+			ActivateShield();
+		
 	//	mEnemyCountText = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
+	}
+
+	private void ActivateShield()
+	{
+		GOShield.GetComponent<EnemyShield>().ActivateShield(transform);
+		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
+		Invoke("DeactivateShield", t);
+	}
+
+	private void DeactivateShield()
+	{
+		GOShield.GetComponent<EnemyShield>().DeactivateShield();
+		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
+		Invoke("ActivateShield", t);
 	}
 
 	void Update()

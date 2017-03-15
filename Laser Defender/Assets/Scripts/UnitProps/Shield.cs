@@ -12,7 +12,7 @@ public class Shield : MonoBehaviour
 
 	private Image UIBar 				= null;
 	private Text UIText 				= null;
-	private GameObject GOActiveShield 	= null;
+	protected GameObject GOActiveShield 	= null;
 
 	public void StartRegenerating()
 	{
@@ -42,7 +42,7 @@ public class Shield : MonoBehaviour
 		CancelInvoke("Regenerate");
 	}
 
-	public void ActivateShield(Transform parent)
+	public virtual void ActivateShield(Transform parent)
 	{
 		StopRegenerating();
 		UIBar = GameObject.Find("SPBarForeground").GetComponent<Image>();
@@ -70,7 +70,7 @@ public class Shield : MonoBehaviour
 			DeactivateShield();
 	}
 
-	public void DeactivateShield()
+	public virtual void DeactivateShield()
 	{
 		CancelInvoke("Consume");
 		Destroy(GOActiveShield);
