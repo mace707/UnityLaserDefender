@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyShield : Shield 
+public class EnemyShield : MonoBehaviour, IShield 
 {
-	public override void ActivateShield(Transform parent)
+	[SerializeField] private GameObject GOActiveShield = null;
+
+	public void Activate(Transform parent)
 	{
 		GOActiveShield = Instantiate(gameObject, parent.position, Quaternion.identity);
 		GOActiveShield.transform.SetParent(parent);
 	}
 
-	public override void DeactivateShield()
+	public void Deactivate()
 	{
 		Destroy(GOActiveShield);
 	}		

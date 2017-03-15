@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public interface IShield
+{
+	void Activate(Transform parent);
+	void Deactivate();
+}
+
 public class Shield : MonoBehaviour 
 {
 	[SerializeField]	private float MaxShieldPoints 	= 0;
@@ -42,7 +48,7 @@ public class Shield : MonoBehaviour
 		CancelInvoke("Regenerate");
 	}
 
-	public virtual void ActivateShield(Transform parent)
+	public virtual void Activate(Transform parent)
 	{
 		StopRegenerating();
 		UIBar = GameObject.Find("SPBarForeground").GetComponent<Image>();
@@ -67,10 +73,10 @@ public class Shield : MonoBehaviour
 			UpdateUI();
 		}
 		else
-			DeactivateShield();
+			Deactivate();
 	}
 
-	public virtual void DeactivateShield()
+	public virtual void Deactivate()
 	{
 		CancelInvoke("Consume");
 		Destroy(GOActiveShield);

@@ -61,14 +61,14 @@ public class Enemy : MonoBehaviour
 
 	private void ActivateShield()
 	{
-		GOShield.GetComponent<EnemyShield>().ActivateShield(transform);
+		GOShield.GetComponent<EnemyShield>().Activate(transform);
 		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
 		Invoke("DeactivateShield", t);
 	}
 
 	private void DeactivateShield()
 	{
-		GOShield.GetComponent<EnemyShield>().DeactivateShield();
+		GOShield.GetComponent<EnemyShield>().Deactivate();
 		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
 		Invoke("ActivateShield", t);
 	}

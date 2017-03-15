@@ -145,9 +145,9 @@ public class Player : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.LeftShift))
 		{
 			if(mShield.IsShieldActive())
-				mShield.DeactivateShield();
+				mShield.Deactivate();
 			else
-				mShield.ActivateShield(transform);
+				mShield.Activate(transform);
 		}
 
 		if(Input.GetKeyDown(KeyCode.LeftControl))
