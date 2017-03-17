@@ -3,35 +3,20 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour 
 {
-	public int SpawnCount = 0;
-
 	// Serialized Public
-	[SerializeField]
-	public float Health = 0;
-	[SerializeField]
-	public float ProjectileSpeed = 0;
-	[SerializeField]
-	public float ShotsPerSecond = 0;
-
-	[SerializeField]
-	public int Score = 100;
-
-	[SerializeField]
-	public AudioClip FireSound;
-	[SerializeField]
-	public AudioClip DeathSound;
-
-	[SerializeField]
-	public GameObject Explosion;
-
-	[SerializeField]
-	public GameObject[] ItemDrops; 
-
-	[SerializeField]
-	public float[] ItemDropProbabilities; 
-
-	[SerializeField]
-	public float Damage;
+	[SerializeField]	public float Health = 0;
+	[SerializeField]	public float ProjectileSpeed = 0;
+	[SerializeField]	public float ShotsPerSecond = 0;
+	[SerializeField]	public int Score = 100;
+	[SerializeField]	public AudioClip FireSound;
+	[SerializeField]	public AudioClip DeathSound;
+	[SerializeField]	public GameObject Explosion;
+	[SerializeField]	public GameObject[] ItemDrops; 
+	[SerializeField]	public float[] ItemDropProbabilities; 
+	[SerializeField]	public float Damage;
+	[SerializeField] 	private GameObject GOShield = null;
+	[SerializeField] 	private float ShieldMaxDuration = 0;
+	[SerializeField] 	private float ShieldMinDuration = 0;
 
 	private ScoreText mScoreText;
 
@@ -45,18 +30,17 @@ public class Enemy : MonoBehaviour
 
 	private LevelHandler ActiveLevelHandler;
 
-	[SerializeField] private GameObject GOShield = null;
-	[SerializeField] private float ShieldMaxDuration = 0;
-	[SerializeField] private float ShieldMinDuration = 0;
+	private EnemyShield mShield;
 
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
 		if(GOShield != null)
+		{
+			mShield = GOShield.GetComponent<EnemyShield>();
 			ActivateShield();
-		
-	//	mEnemyCountText = GameObject.Find(StringConstants.TEXTSpawnCount).GetComponent<EnemyCountText>();
+		}
 	}
 
 	private void ActivateShield()
@@ -83,7 +67,10 @@ public class Enemy : MonoBehaviour
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		HandleCollision(col);
+		if(!mShield.IsActive())
+		{
+			HandleCollision(col);
+		}
 	}
 
 	void FireProjectile()

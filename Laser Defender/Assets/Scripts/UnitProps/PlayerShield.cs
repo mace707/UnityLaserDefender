@@ -77,7 +77,7 @@ public class PlayerShield : MonoBehaviour, IShield
 		StartRegenerating();
 	}
 
-	public bool IsShieldActive()
+	public bool IsActive()
 	{
 		return GOActiveShield != null;
 	}
@@ -89,7 +89,7 @@ public class PlayerShield : MonoBehaviour, IShield
 		UIText.text = "S " + ShieldPoints.ToString() + "/" + MaxShieldPoints;
 	}
 
-	void OnTriggerEnter2D(Collider2D col)
+	public void OnTriggerEnter2D(Collider2D col)
 	{
 		Projectile laser = col.gameObject.GetComponent<Projectile>();
 		if(laser)

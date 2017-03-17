@@ -52,7 +52,7 @@ public class Player : MonoBehaviour
 
 	[SerializeField]
 	private GameObject GOShield = null;
-	private Shield mShield;
+	private PlayerShield mShield;
 
 	[SerializeField]
 	private GameObject GOHPBar = null;
@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
 		mFocus = GOFocus.GetComponent<Focus>();
 		mFocus.StartGathering();
 		PrimaryWeapon = WeaponFactory.GetWeapon(WeaponFactory.WeaponType.WeaponTypeRocketLauncher);
-		mShield = GOShield.GetComponent<Shield>();
+		mShield = GOShield.GetComponent<PlayerShield>();
 		mHPBar = GOHPBar.GetComponent<HPBarManager>();
 		mHPBar.Setup(MaxHitPoints);
 	}
@@ -144,7 +144,7 @@ public class Player : MonoBehaviour
 
 		if(Input.GetKeyDown(KeyCode.LeftShift))
 		{
-			if(mShield.IsShieldActive())
+			if(mShield.IsActive())
 				mShield.Deactivate();
 			else
 				mShield.Activate(transform);
@@ -181,7 +181,7 @@ public class Player : MonoBehaviour
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		if(mShield.IsShieldActive())
+		if(mShield.IsActive())
 			return;
 
 		Projectile laser = col.gameObject.GetComponent<Projectile>();

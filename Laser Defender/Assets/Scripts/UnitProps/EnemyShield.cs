@@ -16,4 +16,16 @@ public class EnemyShield : MonoBehaviour, IShield
 	{
 		Destroy(GOActiveShield);
 	}		
+
+	public bool IsActive()
+	{
+		return GOActiveShield != null;
+	}
+
+	public void OnTriggerEnter2D(Collider2D col)
+	{
+		Projectile laser = col.gameObject.GetComponent<Projectile>();
+		if(laser)
+			laser.Hit();
+	}
 }
