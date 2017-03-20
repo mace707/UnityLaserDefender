@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Focus : MonoBehaviour
+public class FocusManager : MonoBehaviour
 {
 	[SerializeField]	private float MaxFocusPoints 	= 0;
 	[SerializeField]	private int Increment 			= 0;
 	[SerializeField]	private float RepeatRate 		= 0;
 	[SerializeField]	private float Cost 				= 0;
-
-	[SerializeField]	private Image UIBar 			= null;
-	[SerializeField]	private Text UIText 			= null;
 
 	private float FocusPoints = 0;
 
@@ -29,7 +26,7 @@ public class Focus : MonoBehaviour
 	{
 		if (GlobalConstants.FreezeAllNoTimeScale) 
 		{
-			UpdateUI(FocusPoints);
+			UpdateUI();
 			return;
 		}
 		
@@ -37,7 +34,7 @@ public class Focus : MonoBehaviour
 		{
 			FocusPoints += Increment;
 			FocusPoints = Mathf.Clamp(FocusPoints, 0, MaxFocusPoints);
-			UpdateUI(FocusPoints);
+			UpdateUI();
 		}
 	}
 
@@ -46,16 +43,14 @@ public class Focus : MonoBehaviour
 		if (FocusPoints - Cost >= 0)
 		{
 			FocusPoints -= Cost;
-			UpdateUI(FocusPoints);
+			UpdateUI();
 			return true;
 		}
 		return false;
 	}
 
-	private void UpdateUI(float value)
+	private void UpdateUI()
 	{
-		float ratio = FocusPoints / MaxFocusPoints;
-		UIBar.rectTransform.localScale = new Vector3(ratio, 1, 1);
-		UIText.text = "F " + FocusPoints.ToString() + "/" + MaxFocusPoints;
+		ProgBarHandler.UpdateUIComponent (StringConstants.UITEXT_FocusPoints, StringConstants.UIIMAGE_FocusPoints, 'F', FocusPoints, MaxFocusPoints);
 	}
 }

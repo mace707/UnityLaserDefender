@@ -52,17 +52,18 @@ public class Player : MonoBehaviour
 
 	[SerializeField]
 	private GameObject GOShield = null;
-	private PlayerShield mShield;
+	private GameObject GOShieldInstance = null;
+	private PlayerShieldManager mShield;
 
 	[SerializeField]
 	private GameObject GOHPBar = null;
-	private HPBarManager mHPBar;
+	private HealthManager mHPBar;
 
 	public bool FreezePlayer = false;
 
 	[SerializeField]
 	private GameObject GOFocus = null;
-	private Focus mFocus;
+	private FocusManager mFocus;
 
 	// Use this for initialization
 	void Start () 
@@ -91,11 +92,14 @@ public class Player : MonoBehaviour
 
 		mDustKeeper = GameObject.Find(StringConstants.PPDust).GetComponent<DustText>();
 
-		mFocus = GOFocus.GetComponent<Focus>();
+		mFocus = GOFocus.GetComponent<FocusManager>();
 		mFocus.StartGathering();
 		PrimaryWeapon = WeaponFactory.GetWeapon(WeaponFactory.WeaponType.WeaponTypeRocketLauncher);
-		mShield = GOShield.GetComponent<PlayerShield>();
-		mHPBar = GOHPBar.GetComponent<HPBarManager>();
+		GOShieldInstance = Instantiate (GOShield, transform.position, Quaternion.identity); // We need to intantiate a clone otherwise we are accessing the prefab dirrectly.
+		GOShieldInstance.transform.SetParent (transform);
+		GOShieldInstance.SetActive (false);
+		mShield = GOShieldInstance.GetComponent<PlayerShieldManager>();
+		mHPBar = GOHPBar.GetComponent<HealthManager>();
 		mHPBar.Setup(MaxHitPoints);
 	}
 
@@ -144,10 +148,16 @@ public class Player : MonoBehaviour
 
 		if(Input.GetKeyDown(KeyCode.LeftShift))
 		{
-			if(mShield.IsActive())
-				mShield.Deactivate();
-			else
-				mShield.Activate(transform);
+			if (mShield.IsActive ()) 
+			{
+				GOShieldInstance.SetActive (false);
+				mShield.Deactivate ();
+			} 
+			else 
+			{
+				GOShieldInstance.SetActive (true);
+				mShield.Activate (transform);
+			}
 		}
 
 		if(Input.GetKeyDown(KeyCode.LeftControl))
