@@ -30,7 +30,7 @@ public class Enemy : MonoBehaviour
 
 	private LevelHandler ActiveLevelHandler;
 
-	private EnemyShield mShield;
+	private EnemyShieldManager mShield;
 
 	private GameObject INSTShield;
 

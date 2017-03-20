@@ -45,30 +45,21 @@ public class Player : MonoBehaviour
 
 	private DustText mDustKeeper;
 
-	public GameObject MenuHandlerGO;
-	private InGameMenuHandler MenuHandler;
-
 	Weapon PrimaryWeapon;
 
 	[SerializeField]
-	private GameObject GOShield = null;
+	private GameObject GOShieldPrefab = null;
 	private GameObject GOShieldInstance = null;
 	private PlayerShieldManager mShield;
 
-	[SerializeField]
-	private GameObject GOHPBar = null;
-	private HealthManager mHPBar;
-
 	public bool FreezePlayer = false;
 
-	[SerializeField]
-	private GameObject GOFocus = null;
+	private HealthManager mHPBar;
 	private FocusManager mFocus;
 
 	// Use this for initialization
 	void Start () 
 	{
-		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
 		//StartingDamage = PlayerPrefs.GetFloat(StringConstants.PPDamage, DefaultDamage);
 
 		Damage = StartingDamage;
@@ -92,14 +83,17 @@ public class Player : MonoBehaviour
 
 		mDustKeeper = GameObject.Find(StringConstants.PPDust).GetComponent<DustText>();
 
-		mFocus = GOFocus.GetComponent<FocusManager>();
+		mFocus = GameObject.Find(StringConstants.UIIMAGE_FocusManager).GetComponent<FocusManager>();
 		mFocus.StartGathering();
+
 		PrimaryWeapon = WeaponFactory.GetWeapon(WeaponFactory.WeaponType.WeaponTypeRocketLauncher);
-		GOShieldInstance = Instantiate (GOShield, transform.position, Quaternion.identity); // We need to intantiate a clone otherwise we are accessing the prefab dirrectly.
+
+		GOShieldInstance = Instantiate (GOShieldPrefab, transform.position, Quaternion.identity); // We need to intantiate a clone otherwise we are accessing the prefab dirrectly.
 		GOShieldInstance.transform.SetParent (transform);
 		GOShieldInstance.SetActive (false);
 		mShield = GOShieldInstance.GetComponent<PlayerShieldManager>();
-		mHPBar = GOHPBar.GetComponent<HealthManager>();
+
+		mHPBar = GameObject.Find(StringConstants.UIIMAGE_HealthManager).GetComponent<HealthManager> ();
 		mHPBar.Setup(MaxHitPoints);
 	}
 
@@ -249,7 +243,6 @@ public class Player : MonoBehaviour
 
 	public void CustomizeShip()
 	{
-		MenuHandler.ActivatePlayerCustomizationMenu();
 		ResetValues();
 		Invoke("UpdateValues", 0.000001f);
 	}
@@ -270,7 +263,6 @@ public class Player : MonoBehaviour
 	public void CustomizeShipCanceled()
 	{
 		ResetValues();
-		MenuHandler.ActivatePauseMenu();
 	}
 
 	public void AcceptShipUpgrades()
@@ -283,9 +275,6 @@ public class Player : MonoBehaviour
 
 		PlayerPrefs.SetFloat(StringConstants.PPDamage, Damage);
 		StartingDamage = Damage;
-
-	//	UpdateHealthBar();
-		MenuHandler.ActivatePauseMenu();
 	}
 
 	public void ResetValues()

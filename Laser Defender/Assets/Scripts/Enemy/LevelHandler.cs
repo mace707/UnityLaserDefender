@@ -18,23 +18,21 @@ public class LevelHandler : MonoBehaviour
 
 	private int FormationIndex;
 
-	private EnemySpawner_New EnemySpawner;
+	private EnemySpawner EnemySpawner;
 
 	private int EnemiesAliveInLevel;
 
-	[SerializeField]
-	private GameObject MenuHandlerGO;
-
-	private InGameMenuHandler_New MenuHandler;
+	[SerializeField] private GameObject MenuHandlerGO;
+	private InGameMenuHandler MenuHandler;
 
 	private bool MenuActive = false;
 	// Use this for initialization
 	void Start () 
 	{
-		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler_New>();
+		MenuHandler = MenuHandlerGO.GetComponent<InGameMenuHandler>();
 		ActiveLevelIndex = PlayerPrefs.GetInt("Level", 0);
 		AllLevelsGO = GameObject.Find("Levels");
-		EnemySpawner = EnemySpawnerGO.GetComponent<EnemySpawner_New>();
+		EnemySpawner = EnemySpawnerGO.GetComponent<EnemySpawner>();
 		MenuHandler.ActivateCoundDownTimer();
 		LoadActiveLevel();
 	}

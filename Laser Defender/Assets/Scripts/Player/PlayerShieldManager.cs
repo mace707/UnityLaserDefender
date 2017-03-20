@@ -11,8 +11,6 @@ public class PlayerShieldManager : MonoBehaviour
 	[SerializeField]	private int RegenerationRate 	= 0;
 	[SerializeField]  	private bool HasRegeneration	= false;
 
-	private GameObject GOActiveShield 	= null;
-
 	private bool Active = false;
 
 	public void StartRegenerating()
