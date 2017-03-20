@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerShield : MonoBehaviour, IShield
+public class PlayerShield : MonoBehaviour
 {
 	[SerializeField]	private float MaxShieldPoints 	= 0;
 	[SerializeField] 	private float ShieldPoints 		= 0;
 	[SerializeField]	private int ConsumptionRate 	= 0;
 	[SerializeField]	private int RegenerationRate 	= 0;
+	[SerializeField]  	private bool HasRegeneration	= false;
 
 	private Image UIBar 				= null;
 	private Text UIText 				= null;
@@ -16,7 +17,8 @@ public class PlayerShield : MonoBehaviour, IShield
 
 	public void StartRegenerating()
 	{
-		InvokeRepeating("Regenerate", 5, 1);
+		if(HasRegeneration)
+			InvokeRepeating("Regenerate", 5, 1);
 	}
 
 	private void Regenerate()

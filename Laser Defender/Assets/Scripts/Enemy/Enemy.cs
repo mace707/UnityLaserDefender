@@ -32,27 +32,30 @@ public class Enemy : MonoBehaviour
 
 	private EnemyShield mShield;
 
+	private GameObject INSTShield;
+
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
 		if(GOShield != null)
 		{
-			mShield = GOShield.GetComponent<EnemyShield>();
-			ActivateShield();
+			float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
+			Invoke("ActivateShield", t);
 		}
 	}
 
 	private void ActivateShield()
 	{
-		GOShield.GetComponent<EnemyShield>().Activate(transform);
+		INSTShield = Instantiate(GOShield, transform.position, Quaternion.identity);
+		INSTShield.transform.SetParent(transform);
 		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
 		Invoke("DeactivateShield", t);
 	}
 
 	private void DeactivateShield()
 	{
-		GOShield.GetComponent<EnemyShield>().Deactivate();
+		Destroy(INSTShield);
 		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
 		Invoke("ActivateShield", t);
 	}
@@ -67,7 +70,7 @@ public class Enemy : MonoBehaviour
 
 	void OnTriggerEnter2D(Collider2D col)
 	{
-		if(!mShield.IsActive())
+		if(INSTShield == null)
 		{
 			HandleCollision(col);
 		}
