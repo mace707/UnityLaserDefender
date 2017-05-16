@@ -18,6 +18,7 @@ public class Enemy : MonoBehaviour
 	// Sounds and animations
 	[SerializeField]	public AudioClip FireSound;
 	[SerializeField]	public AudioClip DeathSound;
+	[SerializeField]	public AudioClip CloakSound;
 	[SerializeField]	public GameObject Explosion;
 
 	// Shield
@@ -27,18 +28,55 @@ public class Enemy : MonoBehaviour
 	[SerializeField]	private bool 		HasShield = false;
 	[SerializeField]	private float 		ShieldActivationProbability = 0;
 
+	//Cloak
+	[SerializeField]	private bool		HasCloak = false;
+	[SerializeField]	private float 		CloakMinDuration = 0;
+	[SerializeField]	private float 		CloakMaxDuration = 0;
+	[SerializeField]	private float		CloakActivationProbability = 0;
+						private bool 		CloakActive = false;
+						private Color 		SpriteColor;
+
 	private ScoreText mScoreText;
 	public bool TrackingAmmunition = false;
 	public bool Invincible = false;
 	private LevelHandler ActiveLevelHandler;
 	private GameObject INSTShield;
+	private SpriteRenderer	mSpriteRenderer;
 
 	void Start()
 	{
+		mSpriteRenderer = GetComponent<SpriteRenderer>();
+		SpriteColor = mSpriteRenderer.color;
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
 		if(HasShield)
 			InvokeRepeating("ActivateShield", ShieldMinDuration, ShieldMaxDuration);
+		if (HasCloak)
+			InvokeRepeating("ActivateCloak", CloakMinDuration, CloakMaxDuration);
+	}
+
+	private void ActivateCloak()
+	{
+		DeactivateCloak();
+		float randomProbability = Random.Range(GlobalConstants.ProbabilityMin, GlobalConstants.ProbabilityMax);
+		if(randomProbability < CloakActivationProbability)
+		{
+			mSpriteRenderer.color = new Color(0, 0, 0, 0);
+			float cloakDuration = Random.Range (CloakMinDuration, CloakMaxDuration);
+			Invoke ("DeactivateCloak", cloakDuration);
+			CloakActive = true;
+			AudioSource.PlayClipAtPoint(CloakSound, transform.position, 40f);
+		}
+	}
+
+	private void DeactivateCloak()
+	{
+		if (CloakActive)
+		{
+			CloakActive = false;
+			mSpriteRenderer.color = SpriteColor;
+			AudioSource.PlayClipAtPoint(CloakSound, transform.position, 40f);
+		}
 	}
 
 	private void ActivateShield()
@@ -123,8 +161,11 @@ public class Enemy : MonoBehaviour
 
 	void HandleCollision(Collider2D col)
 	{
-		Projectile laser = col.gameObject.GetComponent<Projectile> ();
-		if(laser && !Invincible)
+		if (Invincible || CloakActive)
+			return;
+		
+		Projectile laser = col.gameObject.GetComponent<Projectile>();
+		if(laser)
 		{
 			laser.Hit();
 			Health -= laser.GetDamage();
