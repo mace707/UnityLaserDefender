@@ -7,57 +7,60 @@ public class Enemy : MonoBehaviour
 	[SerializeField]	public float Health = 0;
 	[SerializeField]	public float ProjectileSpeed = 0;
 	[SerializeField]	public float ShotsPerSecond = 0;
-	[SerializeField]	public int Score = 100;
+	[SerializeField]	public int Score = 0;
+	[SerializeField]	public float Damage;
+	[SerializeField] 	public GameObject Projectile;
+
+	// Item Drops
+	[SerializeField]	public GameObject[] ItemDrops; 
+	[SerializeField]	public float[] ItemDropProbabilities; 
+
+	// Sounds and animations
 	[SerializeField]	public AudioClip FireSound;
 	[SerializeField]	public AudioClip DeathSound;
 	[SerializeField]	public GameObject Explosion;
-	[SerializeField]	public GameObject[] ItemDrops; 
-	[SerializeField]	public float[] ItemDropProbabilities; 
-	[SerializeField]	public float Damage;
-	[SerializeField] 	private GameObject GOShield = null;
-	[SerializeField] 	private float ShieldMaxDuration = 0;
-	[SerializeField] 	private float ShieldMinDuration = 0;
+
+	// Shield
+	[SerializeField] 	private GameObject 	GOShield = null;
+	[SerializeField] 	private float 		ShieldMinDuration = 0;
+	[SerializeField] 	private float 		ShieldMaxDuration = 0;
+	[SerializeField]	private bool 		HasShield = false;
+	[SerializeField]	private float 		ShieldActivationProbability = 0;
 
 	private ScoreText mScoreText;
-
-	//EnemyCountText mEnemyCountText;
-
-	public GameObject Projectile;
-
-	public bool AimedShot = false;
-
+	public bool TrackingAmmunition = false;
 	public bool Invincible = false;
-
 	private LevelHandler ActiveLevelHandler;
-
-	private EnemyShieldManager mShield;
-
 	private GameObject INSTShield;
 
 	void Start()
 	{
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
-		if(GOShield != null)
-		{
-			float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
-			Invoke("ActivateShield", t);
-		}
+		if(HasShield)
+			InvokeRepeating("ActivateShield", ShieldMinDuration, ShieldMaxDuration);
 	}
 
 	private void ActivateShield()
 	{
-		INSTShield = Instantiate(GOShield, transform.position, Quaternion.identity);
-		INSTShield.transform.SetParent(transform);
-		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
-		Invoke("DeactivateShield", t);
+		Debug.Assert(GOShield != null);
+		if(GOShield == null)
+			return;
+		
+		DeactivateShield();
+		float randomProbability = Random.Range(GlobalConstants.ProbabilityMin, GlobalConstants.ProbabilityMax);
+		if(randomProbability < ShieldActivationProbability)
+		{
+			INSTShield = Instantiate(GOShield, transform.position, Quaternion.identity);
+			INSTShield.transform.SetParent(transform);
+			float shieldDuration = Random.Range(ShieldMinDuration, ShieldMaxDuration);
+			Invoke("DeactivateShield", shieldDuration);
+		}
 	}
 
 	private void DeactivateShield()
 	{
 		Destroy(INSTShield);
-		float t = Random.Range(ShieldMinDuration, ShieldMaxDuration);
-		Invoke("ActivateShield", t);
 	}
 
 	void Update()
@@ -84,7 +87,7 @@ public class Enemy : MonoBehaviour
 			GameObject projectile = (GameObject)Instantiate(Projectile, transform.position, Quaternion.identity);
 			projectile.GetComponent<Projectile>().SetDamage(Damage);
 
-			if(AimedShot)
+			if(TrackingAmmunition)
 			{
 				Vector3 targetPosition = GameObject.Find(StringConstants.GOPlayer).transform.position;
 				Vector3 relativePos = targetPosition - transform.position;
@@ -101,7 +104,6 @@ public class Enemy : MonoBehaviour
 
 	void Die()
 	{
-	//	mEnemyCountText.ChangeCount();
 		mScoreText.SetScore(Score);
 
 		Instantiate(Explosion, transform.position, Quaternion.identity);
