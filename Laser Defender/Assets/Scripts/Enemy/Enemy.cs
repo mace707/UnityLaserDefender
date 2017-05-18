@@ -41,12 +41,11 @@ public class Enemy : MonoBehaviour
 	public bool Invincible = false;
 	private LevelHandler ActiveLevelHandler;
 	private GameObject INSTShield;
-	private SpriteRenderer	mSpriteRenderer;
+	private Animator mAnimator;
 
 	void Start()
 	{
-		mSpriteRenderer = GetComponent<SpriteRenderer>();
-		SpriteColor = mSpriteRenderer.color;
+		mAnimator = GetComponent<Animator>();
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
 		if(HasShield)
@@ -61,7 +60,7 @@ public class Enemy : MonoBehaviour
 		float randomProbability = Random.Range(GlobalConstants.ProbabilityMin, GlobalConstants.ProbabilityMax);
 		if(randomProbability < CloakActivationProbability)
 		{
-			mSpriteRenderer.color = new Color(0, 0, 0, 0);
+			mAnimator.SetTrigger("EngageCloak");
 			float cloakDuration = Random.Range (CloakMinDuration, CloakMaxDuration);
 			Invoke ("DeactivateCloak", cloakDuration);
 			CloakActive = true;
@@ -73,8 +72,8 @@ public class Enemy : MonoBehaviour
 	{
 		if (CloakActive)
 		{
+			mAnimator.SetTrigger("DisengageCloak");
 			CloakActive = false;
-			mSpriteRenderer.color = SpriteColor;
 			AudioSource.PlayClipAtPoint(CloakSound, transform.position, 40f);
 		}
 	}
