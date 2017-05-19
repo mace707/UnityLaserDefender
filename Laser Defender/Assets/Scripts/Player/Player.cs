@@ -56,6 +56,7 @@ public class Player : MonoBehaviour
 
 	private HealthManager mHPBar;
 	private FocusManager mFocus;
+	public bool HasShadowVision = false;
 
 	// Use this for initialization
 	void Start () 
@@ -206,7 +207,7 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	void Die()
+	public void Die()
 	{
 		SaveSettings();
 		LevelManager mgr = GameObject.Find(StringConstants.SCRIPTLevelManager).GetComponent<LevelManager>();

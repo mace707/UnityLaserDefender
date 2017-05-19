@@ -42,37 +42,53 @@ public class Enemy : MonoBehaviour
 	private LevelHandler ActiveLevelHandler;
 	private GameObject INSTShield;
 	private Animator mAnimator;
+	private Player mPlayer;
+
+	private string EngageCloakText = "";
+	private string DisengageCloakText = "";
 
 	void Start()
 	{
+		mPlayer = GameObject.Find(StringConstants.GOPlayer).GetComponent<Player>();
 		mAnimator = GetComponent<Animator>();
 		mScoreText = GameObject.Find(StringConstants.TEXTScore).GetComponent<ScoreText>();
 		ActiveLevelHandler = GameObject.Find("LevelHandler").GetComponent<LevelHandler>();
 		if(HasShield)
 			InvokeRepeating("ActivateShield", ShieldMinDuration, ShieldMaxDuration);
 		if (HasCloak)
-			InvokeRepeating("ActivateCloak", CloakMinDuration, CloakMaxDuration);
+			InvokeRepeating("EngageCloak", CloakMinDuration, CloakMaxDuration);
+
+		if(mPlayer.HasShadowVision)
+		{
+			EngageCloakText = "EngageShadowCloak";
+			DisengageCloakText = "DisengageShadowCloak";
+		}
+		else
+		{
+			EngageCloakText = "EngageCloak";
+			DisengageCloakText = "DisengageCloak";
+		}
 	}
 
-	private void ActivateCloak()
+	private void EngageCloak()
 	{
-		DeactivateCloak();
+		DisengageCloak(); // probably don't need this
 		float randomProbability = Random.Range(GlobalConstants.ProbabilityMin, GlobalConstants.ProbabilityMax);
 		if(randomProbability < CloakActivationProbability)
 		{
-			mAnimator.SetTrigger("EngageCloak");
+			mAnimator.SetTrigger(EngageCloakText);
 			float cloakDuration = Random.Range (CloakMinDuration, CloakMaxDuration);
-			Invoke ("DeactivateCloak", cloakDuration);
+			Invoke ("DisengageCloak", cloakDuration);
 			CloakActive = true;
 			AudioSource.PlayClipAtPoint(CloakSound, transform.position, 40f);
 		}
 	}
 
-	private void DeactivateCloak()
+	private void DisengageCloak()
 	{
 		if (CloakActive)
 		{
-			mAnimator.SetTrigger("DisengageCloak");
+			mAnimator.SetTrigger(DisengageCloakText);
 			CloakActive = false;
 			AudioSource.PlayClipAtPoint(CloakSound, transform.position, 40f);
 		}
@@ -104,6 +120,9 @@ public class Enemy : MonoBehaviour
 	{
 		if(GlobalConstants.FreezeAllNoTimeScale)
 			return;
+
+		if(transform.position.y <= mPlayer.transform.position.y)
+			mPlayer.Die();
 
 		FireProjectile();
 	}
@@ -160,7 +179,7 @@ public class Enemy : MonoBehaviour
 
 	void HandleCollision(Collider2D col)
 	{
-		if (Invincible || CloakActive)
+		if (Invincible || (CloakActive && !mPlayer.HasShadowVision))
 			return;
 		
 		Projectile laser = col.gameObject.GetComponent<Projectile>();
